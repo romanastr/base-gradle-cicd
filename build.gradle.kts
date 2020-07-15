@@ -34,7 +34,7 @@ configure(subprojects.filter { it.name in listOf("api", "stats-api", "stats-repo
             credHelper = "desktop"
         }
         container {
-            ports - listOf("8080")
+            ports = listOf("8080")
         }
     }
 }
