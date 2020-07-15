@@ -1,3 +1,4 @@
+import com.google.cloud.tools.jib.gradle.JibExtension
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension
 
 plugins {
@@ -7,19 +8,38 @@ plugins {
     id("org.springframework.boot") version "2.2.6.RELEASE" apply false
     id("io.spring.dependency-management") version "1.0.8.RELEASE" apply false
     id("org.flywaydb.flyway") version "6.5.0" apply false
+    id("com.google.cloud.tools.jib") version "2.4.0" apply false
 }
 
 allprojects {
     group = "org.astroman.base.gradle"
-    version = "1.0-SNAPSHOT"
+    version = "1.0"
     repositories {
         mavenCentral()
         gradlePluginPortal()
     }
 }
 
+configure(subprojects.filter { it.name in listOf("api", "stats-api", "stats-reporting") }) {
+    //  openjdk:11.0.7-jre-slim
+    val baseJavaImage = "openjdk@sha256:1fb56466022f61c64b1fb5f15450619626fd4dd4c63d81c29f1142120df374cf"
+
+    apply(plugin = "com.google.cloud.tools.jib")
+    configure<JibExtension> {
+        from {
+            image = baseJavaImage
+        }
+        to {
+            image = "registry.hub.docker.com/romanastr/base-gradle-${project.name}:${project.version}"
+            credHelper = "desktop"
+        }
+        container {
+            ports - listOf("8080")
+        }
+    }
+}
+
 subprojects {
-    val springBootVersion = "2.3.1.RELEASE"
     apply(plugin = "java-library")
     configure<JavaPluginConvention> {
         sourceCompatibility = JavaVersion.VERSION_11
