@@ -1,15 +1,16 @@
 package org.astroman.base.gradle.api.service;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
-@RequiredArgsConstructor
 public class BusyWaitService {
 
-  @Value("${busy.wait.millis:1000}")
   private final int busyWaitPeriodMillis;
+
+  public BusyWaitService(@Value("${busy.wait.millis:1000}") int busyWaitPeriodMillis) {
+    this.busyWaitPeriodMillis = busyWaitPeriodMillis;
+  }
 
   /**
    * Implements busy wait for a specified duration.
