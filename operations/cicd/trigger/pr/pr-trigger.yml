@@ -1,0 +1,5 @@
+---
+- name: "Create PR CodeBuild trigger"
+  hosts: localhost
+  roles:
+    - codebuild
