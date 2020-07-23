@@ -23,7 +23,15 @@ Resources:
         BuildStatusConfig:
           Context: "pr-trigger"
           TargetUrl: "http://example.com"
-        BuildSpec: "version: 0.2\nphases:\n  build:\n    commands:\n       - zip -r Sources.zip .\nartifacts:\n  files:\n    - Sources.zip"
+        BuildSpec: |
+          version: 0.2
+          phases:
+            build:
+              commands:
+                - zip -r Sources.zip .
+          artifacts:
+            files:
+              - Sources.zip
         Type: "GITHUB"
         Location: "https://github.com/romanastr/base-gradle-cicd"
       Triggers:
