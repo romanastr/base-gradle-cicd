@@ -1,0 +1,6 @@
+- name: Create a CodeBuild trigger
+  cloudformation:
+    stack_name: "CodeBuild-PR-trigger"
+    state: "present"
+    region: "us-east-1"
+    template_body: "{{lookup('template', 'pr-codebuild-template.yml')}}"

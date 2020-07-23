@@ -1,0 +1,70 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: "CodeBuild project for loading code from GitHub to S3 on PR"
+Resources:
+  CodeBuildPr:
+    Type: "AWS::CodeBuild::Project"
+    Properties:
+      Artifacts:
+        ArtifactIdentifier: "Sources for PR builds"
+        EncryptionDisabled: "false"
+        Packaging: "NONE"
+        Location: !Ref "S3OutputBucket"
+        Name: "/"
+        Type: "S3"
+      Description: "PR trigger CodeBuild"
+      Environment:
+        ComputeType: "BUILD_GENERAL1_SMALL"
+        Image: "aws/codebuild/standard:4.0"
+        Type: "LINUX_CONTAINER"
+      Name: "Gradle-CICD-CodeBuild-PR-trigger"
+      ServiceRole: !Ref "CodeBuildRole"
+      Source:
+        ReportBuildStatus: true
+        BuildStatusConfig:
+          Context: "pr-trigger"
+          TargetUrl: "http://example.com"
+        BuildSpec: "version: 0.2\nphases:\n  build:\n    commands:\n       - zip -r Sources.zip .\nartifacts:\n  files:\n    - Sources.zip"
+        Type: "GITHUB"
+        Location: "https://github.com/romanastr/base-gradle-cicd"
+      Triggers:
+        FilterGroups:
+          -
+            - Type: "EVENT"
+              Pattern: PULL_REQUEST_CREATED, PULL_REQUEST_UPDATED, PULL_REQUEST_REOPENED
+        Webhook: true
+  CodeBuildRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: codebuild.amazonaws.com
+  CodeBuildPrPolicy:
+    Type: "AWS::IAM::Policy"
+    Properties:
+      PolicyName: !Sub ${AWS::StackName}-CodeBuildPolicy
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - s3:*
+              - logs:*
+            Resource: "*"
+      Roles:
+        - !Ref "CodeBuildRole"
+  S3OutputBucket:
+    Type: "AWS::S3::Bucket"
+    Properties:
+      BucketName: "pr-codebuild-bucket"
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: "AES256"
+      VersioningConfiguration:
+        Status: "Enabled"
+
+
+      
