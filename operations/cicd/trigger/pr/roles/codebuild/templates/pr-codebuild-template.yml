@@ -41,6 +41,20 @@ Resources:
             Effect: Allow
             Principal:
               Service: codebuild.amazonaws.com
+  CodeBuildPrPolicy:
+    Type: "AWS::IAM::Policy"
+    Properties:
+      PolicyName: !Sub ${AWS::StackName}-CodeBuildPolicy
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - s3:*
+              - logs:*
+            Resource: "*"
+      Roles:
+        - !Ref "CodeBuildRole"
   S3OutputBucket:
     Type: "AWS::S3::Bucket"
     Properties:
