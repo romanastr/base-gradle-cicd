@@ -2,5 +2,5 @@
   cloudformation:
     stack_name: "CodeBuild-PR-trigger"
     state: "present"
-    region: "us-east-1"
+    region: "{{aws_region}}"
     template_body: "{{lookup('template', 'pr-codebuild-template.yml')}}"
