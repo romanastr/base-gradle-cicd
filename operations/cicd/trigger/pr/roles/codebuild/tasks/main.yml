@@ -1,4 +1,4 @@
-- name: Create a CodeBuild trigger
+- name: "Create a CodeBuild trigger project"
   cloudformation:
     stack_name: "CodeBuild-PR-trigger"
     state: "present"

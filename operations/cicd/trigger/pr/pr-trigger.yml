@@ -1,6 +1,7 @@
 ---
-- name: "Create PR CodeBuild trigger"
+- name: "Create PR CodeBuild trigger playbook"
   hosts: localhost
   connection: local
   roles:
+    - iamrole
     - codebuild
