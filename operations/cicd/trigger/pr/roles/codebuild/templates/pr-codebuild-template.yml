@@ -17,7 +17,7 @@ Resources:
         Image: "aws/codebuild/standard:4.0"
         Type: "LINUX_CONTAINER"
       Name: "Gradle-CICD-CodeBuild-PR-trigger"
-      ServiceRole: !Ref "CodeBuildRole"
+      ServiceRole: "{{codebuild_trigger_role_arn}}"
       Source:
         ReportBuildStatus: true
         BuildStatusConfig:
@@ -40,29 +40,6 @@ Resources:
             - Type: "EVENT"
               Pattern: PULL_REQUEST_CREATED, PULL_REQUEST_UPDATED, PULL_REQUEST_REOPENED
         Webhook: true
-  CodeBuildRole:
-    Type: "AWS::IAM::Role"
-    Properties:
-      AssumeRolePolicyDocument:
-        Statement:
-          - Action: sts:AssumeRole
-            Effect: Allow
-            Principal:
-              Service: codebuild.amazonaws.com
-  CodeBuildPrPolicy:
-    Type: "AWS::IAM::Policy"
-    Properties:
-      PolicyName: !Sub ${AWS::StackName}-CodeBuildPolicy
-      PolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Effect: Allow
-            Action:
-              - s3:*
-              - logs:*
-            Resource: "*"
-      Roles:
-        - !Ref "CodeBuildRole"
   S3OutputBucket:
     Type: "AWS::S3::Bucket"
     Properties:
@@ -73,6 +50,3 @@ Resources:
               SSEAlgorithm: "AES256"
       VersioningConfiguration:
         Status: "Enabled"
-
-
-      
