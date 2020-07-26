@@ -3,5 +3,7 @@
   hosts: localhost
   connection: local
   roles:
-    - iamrole
-    - codebuild
+    - trigger-role
+    - trigger
+    - pipeline-role
+    - pipeline

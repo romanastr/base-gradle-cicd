@@ -1,6 +1,6 @@
 - name: Create a CodeBuild trigger role
   cloudformation:
-    stack_name: "CodeBuild-PR-trigger-role"
+    stack_name: "CodeBuild-trigger-role"
     state: "present"
     region: "{{aws_region}}"
     template_body: "{{lookup('template', 'pr-codebuild-role-template.yml')}}"

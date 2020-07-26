@@ -1,0 +1,43 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: "CodePipeline project"
+Resources:
+  CodePipeline:
+    Type: "AWS::CodePipeline::Pipeline"
+    Properties:
+      RoleArn: "{{codepipeline_role_arn}}"
+      Stages:
+        -
+          Name: Source
+          Actions:
+            - Name: S3SourceAction
+              ActionTypeId:
+                Category: Source
+                Owner: AWS
+                Provider: S3
+                Version: 1
+              OutputArtifacts:
+                - Name: SourceArtifact
+              Configuration:
+                S3Bucket: "{{source_artifact_bucket_name}}"
+                S3ObjectKey: "{{source_artifact_key}}"
+              RunOrder: 1
+        -
+          Name: Build
+          Actions:
+            - Name: Build
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Provider: CodeBuild
+                Version: 1
+              Configuration:
+                ProjectName: "Gradle-CICD-CodeBuild-PR-main"
+              InputArtifacts:
+                - Name: SourceArtifact
+              OutputArtifacts:
+                - Name: BuildArtifact
+      ArtifactStore:
+        Type: S3
+        Location: !Ref "CodePipelineArtifactStoreBucket"
+  CodePipelineArtifactStoreBucket:
+    Type: "AWS::S3::Bucket"

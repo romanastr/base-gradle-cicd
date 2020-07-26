@@ -1,0 +1,30 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: "CodeBuild role for loading code from GitHub to S3 on PR"
+Resources:
+  CodeBuildRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: codebuild.amazonaws.com
+  CodeBuildPrPolicy:
+    Type: "AWS::IAM::Policy"
+    Properties:
+      PolicyName: !Sub ${AWS::StackName}-CodeBuildPolicy
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - s3:*
+              - logs:*
+            Resource: "*"
+      Roles:
+        - !Ref "CodeBuildRole"
+Outputs:
+  CodeBuildRoleARN:
+    Description: "ARN of CodeBuild Role"
+    Value: !GetAtt CodeBuildRole.Arn
