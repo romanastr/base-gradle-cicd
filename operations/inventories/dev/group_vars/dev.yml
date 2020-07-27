@@ -1,3 +1,4 @@
 aws_region: us-east-1
+project_name: Gradle-CICD
 source_artifact_bucket_name: pr-codebuild-bucket
 source_artifact_key: Sources.zip
