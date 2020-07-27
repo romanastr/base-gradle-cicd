@@ -4,6 +4,7 @@ Resources:
   CodePipeline:
     Type: "AWS::CodePipeline::Pipeline"
     Properties:
+      Name: "{{project_name}}-PR-Pipeline"
       RoleArn: "{{codepipeline_role_arn}}"
       Stages:
         -
@@ -31,7 +32,7 @@ Resources:
                 Provider: CodeBuild
                 Version: 1
               Configuration:
-                ProjectName: "Gradle-CICD-CodeBuild-PR-main"
+                ProjectName: !Ref CodeBuildBuild
               InputArtifacts:
                 - Name: SourceArtifact
               OutputArtifacts:
@@ -41,3 +42,23 @@ Resources:
         Location: !Ref "CodePipelineArtifactStoreBucket"
   CodePipelineArtifactStoreBucket:
     Type: "AWS::S3::Bucket"
+  CodeBuildBuild:
+    Type: "AWS::CodeBuild::Project"
+    Properties:
+      Artifacts:
+        Type: "CODEPIPELINE"
+      Description: "Main Build for PRs"
+      Environment:
+        ComputeType: "BUILD_GENERAL1_SMALL"
+        Image: "aws/codebuild/standard:4.0"
+        Type: "LINUX_CONTAINER"
+      Name: "{{project_name}}-CodeBuild-PR-Main"
+      ServiceRole: "{{codebuild_trigger_role_arn}}"
+      Source:
+        Type: "CODEPIPELINE"
+        BuildSpec: |
+          version: 0.2
+          phases:
+            build:
+              commands:
+                - chmod +x gradlew && ./gradlew clean build
