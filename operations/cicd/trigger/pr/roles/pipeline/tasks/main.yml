@@ -1,0 +1,6 @@
+- name: "Create a CodePipeline project"
+  cloudformation:
+    stack_name: "CodePipeline-PR"
+    state: "present"
+    region: "{{aws_region}}"
+    template_body: "{{lookup('template', 'pr-codepipeline-template.yml')}}"

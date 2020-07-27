@@ -4,3 +4,4 @@
     state: "present"
     region: "{{aws_region}}"
     template_body: "{{lookup('template', 'pr-codebuild-template.yml')}}"
+  register: output

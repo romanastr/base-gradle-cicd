@@ -28,10 +28,10 @@ Resources:
           phases:
             build:
               commands:
-                - zip -r Sources.zip .
+                - zip -r {{source_artifact_key}} .
           artifacts:
             files:
-              - Sources.zip
+              - {{source_artifact_key}}
         Type: "GITHUB"
         Location: "https://github.com/romanastr/base-gradle-cicd"
       Triggers:
@@ -43,7 +43,7 @@ Resources:
   S3OutputBucket:
     Type: "AWS::S3::Bucket"
     Properties:
-      BucketName: "pr-codebuild-bucket"
+      BucketName: "{{source_artifact_bucket_name}}"
       BucketEncryption:
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault:
