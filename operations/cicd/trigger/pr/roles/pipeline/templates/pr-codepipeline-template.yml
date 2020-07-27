@@ -61,4 +61,4 @@ Resources:
           phases:
             build:
               commands:
-                - ./gradlew clean build
+                - chmod +x gradlew && ./gradlew clean build
