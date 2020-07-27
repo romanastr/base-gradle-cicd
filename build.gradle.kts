@@ -67,7 +67,7 @@ subprojects {
         isShowViolations = true
         isIgnoreFailures = false
         maxWarnings = 0
-        configFile = rootProject.file("/config/google_checks.xml")
+        configFile = rootProject.file("config/google_checks.xml")
     }
 
     apply(plugin = "jacoco")
