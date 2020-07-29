@@ -48,8 +48,6 @@ Resources:
                 ProjectName: !Ref CodeBuildStatus
               InputArtifacts:
                 - Name: SourceArtifact
-              OutputArtifacts:
-                - Name: BuildArtifact
               RunOrder: 2
       ArtifactStore:
         Type: S3

@@ -3,3 +3,4 @@ phases:
   build:
     commands:
       - printenv
+      - cat .git/HEAD
