@@ -37,6 +37,7 @@ Resources:
                 - Name: SourceArtifact
               OutputArtifacts:
                 - Name: BuildArtifact
+              RunOrder: 1
       ArtifactStore:
         Type: S3
         Location: !Ref "CodePipelineArtifactStoreBucket"
@@ -56,9 +57,4 @@ Resources:
       ServiceRole: "{{codebuild_trigger_role_arn}}"
       Source:
         Type: "CODEPIPELINE"
-        BuildSpec: |
-          version: 0.2
-          phases:
-            build:
-              commands:
-                - chmod +x gradlew && ./gradlew clean build
+        BuildSpec: "operations/cicd/trigger/pr/roles/pipeline/files/buildspec-build.yml"

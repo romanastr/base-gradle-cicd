@@ -2,4 +2,10 @@ version: 0.2
 phases:
   build:
     commands:
-      - ./gradlew clean build
+      - chmod +x gradlew && ./gradlew clean build
+reports:
+  GradleCICDReportGroup:
+    files:
+      - '**/build/test-results/test/*.xml'
+    discard-paths: no
+    file-format: JunitXml
