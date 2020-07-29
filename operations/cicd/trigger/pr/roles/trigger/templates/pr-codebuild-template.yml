@@ -17,7 +17,7 @@ Resources:
         Image: "aws/codebuild/standard:4.0"
         Type: "LINUX_CONTAINER"
       Name: "{{project_name}}-CodeBuild-PR-trigger"
-      ServiceRole: "{{codebuild_trigger_role_arn}}"
+      ServiceRole: "{{codebuild_role_arn}}"
       Source:
         ReportBuildStatus: true
         BuildStatusConfig:

@@ -21,6 +21,7 @@ Resources:
             Action:
               - s3:*
               - logs:*
+              - codebuild:*
             Resource: "*"
       Roles:
         - !Ref "CodeBuildRole"

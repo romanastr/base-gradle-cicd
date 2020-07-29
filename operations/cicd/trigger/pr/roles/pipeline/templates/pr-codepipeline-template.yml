@@ -38,6 +38,19 @@ Resources:
               OutputArtifacts:
                 - Name: BuildArtifact
               RunOrder: 1
+            - Name: BuildStatus
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Provider: CodeBuild
+                Version: 1
+              Configuration:
+                ProjectName: !Ref CodeBuildStatus
+              InputArtifacts:
+                - Name: SourceArtifact
+              OutputArtifacts:
+                - Name: BuildArtifact
+              RunOrder: 2
       ArtifactStore:
         Type: S3
         Location: !Ref "CodePipelineArtifactStoreBucket"
@@ -54,7 +67,22 @@ Resources:
         Image: "aws/codebuild/standard:4.0"
         Type: "LINUX_CONTAINER"
       Name: "{{project_name}}-CodeBuild-PR-Main"
-      ServiceRole: "{{codebuild_trigger_role_arn}}"
+      ServiceRole: "{{codebuild_role_arn}}"
       Source:
         Type: "CODEPIPELINE"
         BuildSpec: "operations/cicd/trigger/pr/roles/pipeline/files/buildspec-build.yml"
+  CodeBuildStatus:
+    Type: "AWS::CodeBuild::Project"
+    Properties:
+      Artifacts:
+        Type: "CODEPIPELINE"
+      Description: "Reporting Build status for PRs"
+      Environment:
+        ComputeType: "BUILD_GENERAL1_SMALL"
+        Image: "aws/codebuild/standard:4.0"
+        Type: "LINUX_CONTAINER"
+      Name: "{{project_name}}-CodeBuild-PR-Status"
+      ServiceRole: "{{codebuild_role_arn}}"
+      Source:
+        Type: "CODEPIPELINE"
+        BuildSpec: "operations/cicd/trigger/pr/roles/pipeline/files/buildspec-build-status.yml"
