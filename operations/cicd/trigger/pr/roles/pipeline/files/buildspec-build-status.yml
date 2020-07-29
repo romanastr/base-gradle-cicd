@@ -3,4 +3,7 @@ phases:
   build:
     commands:
       - printenv
-      - cat .git/HEAD
+      - SHA=$(cat .git/HEAD)
+      - PIPELINE_ID=$(aws codepipeline get-pipeline-state --region {{aws_region}} --name ${CODEBUILD_INITIATOR#codepipeline/} --query 'stageStates[?actionStates[?latestExecution.externalExecutionId==`'${CODEBUILD_BUILD_ID}'`]].latestExecution.pipelineExecutionId' --output text)
+      - echo PIPELINE_ID = $PIPELINE_ID
+      - echo SHA = $SHA
