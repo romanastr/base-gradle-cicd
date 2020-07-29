@@ -22,6 +22,7 @@ Resources:
               - s3:*
               - logs:*
               - codebuild:*
+              - codepipeline:*
             Resource: "*"
       Roles:
         - !Ref "CodeBuildRole"
