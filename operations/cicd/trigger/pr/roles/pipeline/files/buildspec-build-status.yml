@@ -16,3 +16,6 @@ phases:
       - OIFS=$IFS;IFS=":/"; read -ra REPORT_ARRAY <<< "$REPORT_ARN";IFS=$OIFS
       - URL=https://console.aws.amazon.com/codesuite/codebuild/${REPORT_ARRAY[4]}/testReports/reports/${REPORT_ARRAY[6]}/${REPORT_ARRAY[6]}:${REPORT_ARRAY[7]}
       - echo $URL
+      - echo $REPORT_ARRAY
+      - echo ${REPORT_ARRAY[5]}
+      - echo "${REPORT_ARRAY[6]}"
