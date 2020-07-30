@@ -14,4 +14,5 @@ phases:
       - REPORT_ARN=$(aws codebuild batch-get-builds --ids "$BUILD_EXECUTION_ID" --query 'builds[0].reportArns[0]' --output text)
       - echo REPORT_ARN = $REPORT_ARN
       - IFS=':/' read -ra REPORT_ARRAY <<< $REPORT_ARN
-      - echo URL = https://console.aws.amazon.com/codesuite/codebuild/${REPORT_ARRAY[4]}/testReports/reports/${REPORT_ARRAY[6]}/${REPORT_ARRAY[6]}:${REPORT_ARRAY[7]}
+      - URL=https://console.aws.amazon.com/codesuite/codebuild/${REPORT_ARRAY[4]}/testReports/reports/${REPORT_ARRAY[6]}/${REPORT_ARRAY[6]}:${REPORT_ARRAY[7]}
+      - echo $URL
