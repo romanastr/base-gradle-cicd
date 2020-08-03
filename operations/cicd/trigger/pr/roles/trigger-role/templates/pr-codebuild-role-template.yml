@@ -23,6 +23,7 @@ Resources:
               - logs:*
               - codebuild:*
               - codepipeline:*
+              - ssm:Get*
             Resource: "*"
       Roles:
         - !Ref "CodeBuildRole"
