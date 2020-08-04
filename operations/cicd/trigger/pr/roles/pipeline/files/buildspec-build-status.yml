@@ -13,14 +13,13 @@ phases:
       - REPORT_GROUP=$(echo $REPORT_ARN | cut -d":" -f6 | cut -d"/" -f2); echo $REPORT_GROUP
       - REPORT_GROUP_ID=$(echo $REPORT_ARN | cut -d":" -f7); echo $REPORT_GROUP_ID
       - URL=https://console.aws.amazon.com/codesuite/codebuild/$ACCOUNT/testReports/reports/$REPORT_GROUP/$REPORT_GROUP:$REPORT_GROUP_ID; echo $URL
-      - echo Token length = ${#GITHUB_TOKEN}
-      - >
-        curl --location --request POST 'https://api.github.com/repos/romanastr/base-gradle-cicd/statuses/$SHA'
-        --header 'Content-Type: application/x-www-form-urlencoded'
-        -u 'romanastr:$GITHUB_TOKEN'
-        --data-raw '{
-          "state": "success",
-          "target_url": "$URL",
-          "description": "The unit tests passed",
-          "context": "pr-unit-tests"
-        }'
+      - |
+        curl --location --request POST 'https://api.github.com/repos/romanastr/base-gradle-cicd/statuses/'$SHA \
+         --header 'Content-Type: application/x-www-form-urlencoded' \
+         -u 'romanastr:'$GITHUB_TOKEN \
+         --data-raw '{
+           "state": "success",
+           "target_url": "'$URL'",
+           "description": "The unit tests passed",
+           "context": "pr-unit-tests"
+         }'
