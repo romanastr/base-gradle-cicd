@@ -7,6 +7,6 @@
   register: output
 - name: Register role ARN
   set_fact:
-    codebuild_trigger_role_arn: "{{output.stack_outputs.CodeBuildRoleARN}}"
+    codebuild_role_arn: "{{output.stack_outputs.CodeBuildRoleARN}}"
 - name: Output role ARN
-  debug: msg="CodeBuild PR Trigger role ARN = {{ codebuild_trigger_role_arn }}"
+  debug: msg="CodeBuild role ARN = {{ codebuild_role_arn }}"
