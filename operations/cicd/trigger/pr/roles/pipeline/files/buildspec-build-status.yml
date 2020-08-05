@@ -21,7 +21,7 @@ phases:
         fi
       - |
         # Figure out the appropriate build or report URL to send to GitHub
-        if [ ${#REPORT_ARN} -ge 5]; then
+        if [ ${#REPORT_ARN} -ge 5 ]; then
           REPORT_GROUP=$(echo $REPORT_ARN | cut -d":" -f6 | cut -d"/" -f2); echo "$REPORT_GROUP"
           REPORT_GROUP_ID=$(echo $REPORT_ARN | cut -d":" -f7); echo "$REPORT_GROUP_ID"
           REPORT_URL=https://console.aws.amazon.com/codesuite/codebuild/$ACCOUNT/testReports/reports/$REPORT_GROUP/$REPORT_GROUP:$REPORT_GROUP_ID
