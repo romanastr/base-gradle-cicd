@@ -9,8 +9,10 @@ phases:
       - PIPELINE_ID=$(aws codepipeline get-pipeline-state --name ${CODEBUILD_INITIATOR#codepipeline/} --query 'stageStates[?actionStates[?latestExecution.externalExecutionId==`'${CODEBUILD_BUILD_ID}'`]].latestExecution.pipelineExecutionId' --output text); echo PIPELINE_ID = "$PIPELINE_ID"
       - |
         # wait till Build completes
-        sleep 5; echo Retrying; aws codepipeline list-action-executions --pipeline-name=${CODEBUILD_INITIATOR#codepipeline/} --filter="pipelineExecutionId=$PIPELINE_ID" --query 'actionExecutionDetails[?actionName==`Build`].status' --output text | grep -E "Succeeded|Failed"
-        while [ $? -ne 0 ] ; do fc -s ; done
+        while true; do
+          sleep 5; echo Retrying;
+          aws codepipeline list-action-executions --pipeline-name=${CODEBUILD_INITIATOR#codepipeline/} --filter="pipelineExecutionId=$PIPELINE_ID" --query 'actionExecutionDetails[?actionName==`Build`].status' --output text | grep -E "Succeeded|Failed" && break
+        done
       - BUILD_EXECUTION_ID=$(aws codepipeline list-action-executions --pipeline-name=${CODEBUILD_INITIATOR#codepipeline/} --filter="pipelineExecutionId=$PIPELINE_ID" --query 'actionExecutionDetails[?actionName==`Build`].output.executionResult.externalExecutionId' --output text); echo BUILD_EXECUTION_ID = "$BUILD_EXECUTION_ID"
       - BUILD_ARN=$(aws codebuild batch-get-builds --ids "$BUILD_EXECUTION_ID" --query 'builds[0].arn' --output text); echo BUILD_ARN = "$BUILD_ARN"
       - ACCOUNT=$(echo "$BUILD_ARN" | cut -d":" -f5); echo ACCOUNT = "$ACCOUNT"
