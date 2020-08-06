@@ -48,7 +48,7 @@ Resources:
                 ProjectName: !Ref CodeBuildStatus
               InputArtifacts:
                 - Name: SourceArtifact
-              RunOrder: 2
+              RunOrder: 1
       ArtifactStore:
         Type: S3
         Location: !Ref "CodePipelineArtifactStoreBucket"
