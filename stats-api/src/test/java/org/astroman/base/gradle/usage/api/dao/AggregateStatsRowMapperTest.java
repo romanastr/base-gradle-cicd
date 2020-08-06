@@ -52,7 +52,7 @@ public class AggregateStatsRowMapperTest {
     assertThat(aggregateStats.getTotalCount()).isEqualTo(SAMPLE_COUNT);
     assertThat(aggregateStats.getAvgNum()).isEqualTo(SAMPLE_AVG_NUM);
     assertThat(aggregateStats.getAvgTranscriptLength()).isEqualTo(SAMPLE_AVG_LEN);
-    assertThat(aggregateStats.getFirstDateTime()).isNotEqualTo(SAMPLE_START_TIME);
+    assertThat(aggregateStats.getFirstDateTime()).isEqualTo(SAMPLE_START_TIME);
     assertThat(aggregateStats.getLastDateTime()).isEqualTo(SAMPLE_END_TIME);
   }
 }
