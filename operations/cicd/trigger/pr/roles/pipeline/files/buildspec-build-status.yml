@@ -17,17 +17,18 @@ phases:
       - BUILD_ARN=$(aws codebuild batch-get-builds --ids "$BUILD_EXECUTION_ID" --query 'builds[0].arn' --output text); echo BUILD_ARN = "$BUILD_ARN"
       - ACCOUNT=$(echo "$BUILD_ARN" | cut -d":" -f5); echo ACCOUNT = "$ACCOUNT"
       - BUILD_STATUS=$(aws codebuild batch-get-builds --ids "$BUILD_EXECUTION_ID" --query 'builds[0].phases[?phaseType==`BUILD`].phaseStatus' --output text); echo BUILD_STATUS = "$BUILD_STATUS"
+      - TEST_STATUS=$(aws codebuild batch-get-builds --ids "$BUILD_EXECUTION_ID" --query 'builds[0].phases[?phaseType==`POST_BUILD`].phaseStatus' --output text); echo TEST_STATUS = "$TEST_STATUS"
       - REPORT_ARN=$(aws codebuild batch-get-builds --ids "$BUILD_EXECUTION_ID" --query 'builds[0].reportArns[0]' --output text); echo REPORT_ARN = "$REPORT_ARN"
       - |
         # Setting build state reported to GitHub
-        if [ $BUILD_STATUS = "SUCCEEDED" ]; then
+        if [[ $BUILD_STATUS = "SUCCEEDED" && $TEST_STATUS = "SUCCEEDED" ]]; then
           TARGET_STATE="success"
         else
           TARGET_STATE="failure"
         fi
       - |
         # Figure out the appropriate build or report URL to send to GitHub
-        if [ ${#REPORT_ARN} -ge 5 ]; then
+        if [[ $BUILD_STATUS = "SUCCEEDED" ]]; then
           REPORT_GROUP=$(echo $REPORT_ARN | cut -d":" -f6 | cut -d"/" -f2); echo "$REPORT_GROUP"
           REPORT_GROUP_ID=$(echo $REPORT_ARN | cut -d":" -f7); echo "$REPORT_GROUP_ID"
           REPORT_URL=https://console.aws.amazon.com/codesuite/codebuild/$ACCOUNT/testReports/reports/$REPORT_GROUP/$REPORT_GROUP:$REPORT_GROUP_ID

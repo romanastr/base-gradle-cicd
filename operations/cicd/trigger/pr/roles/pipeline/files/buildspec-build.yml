@@ -1,8 +1,14 @@
 version: 0.2
 phases:
+  install:
+    commands:
+      - chmod +x gradlew
   build:
     commands:
-      - chmod +x gradlew && ./gradlew clean build
+      - ./gradlew clean build -x test
+  post_build:
+    commands:
+      - ./gradlew test
 reports:
   GradleCICDReportGroup:
     files:
