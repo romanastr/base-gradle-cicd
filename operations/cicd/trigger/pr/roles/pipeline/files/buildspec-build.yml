@@ -1,4 +1,6 @@
 version: 0.2
+env:
+  shell: bash
 phases:
   install:
     commands:
@@ -8,7 +10,10 @@ phases:
       - ./gradlew clean build -x test
   post_build:
     commands:
-      - ./gradlew test
+      - |
+        if [[ $CODEBUILD_BUILD_SUCCEEDING = 1 ]]; then
+          ./gradlew test
+        fi
 reports:
   GradleCICDReportGroup:
     files:
