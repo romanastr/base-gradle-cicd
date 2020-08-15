@@ -255,9 +255,6 @@ Resources:
       InstanceTypes:
         - t3.small
       AmiType: AL2_x86_64
-      RemoteAccess:
-        Ec2SshKey: >-
-          eksctl-prod-nodegroup-standard-workers-c3:e6:2d:44:73:c7:e0:ef:ae:05:e2:03:b8:ed:78:d5
       NodeRole: !GetAtt NodeInstanceRole.Arn
       Labels:
         alpha.eksctl.io/cluster-name: "{{eks_cache_cluster_name}}"
