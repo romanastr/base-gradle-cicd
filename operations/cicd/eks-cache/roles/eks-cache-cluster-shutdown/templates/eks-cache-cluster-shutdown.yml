@@ -48,6 +48,13 @@ Resources:
       Runtime: "python3.7"
       Timeout: "5"
       Role: !GetAtt DeleteCFNLambdaExecutionRole.Arn
+  PermissionForDeleteCFNLambda:
+    Type: "AWS::Lambda::Permission"
+    Properties:
+      FunctionName: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:DeleteCFNLambda-${StackName}"
+      Action: "lambda:InvokeFunction"
+      Principal: "events.amazonaws.com"
+      SourceArn: !GetAtt TimedShutdownRule.Arn
   DeleteCFNLambdaExecutionRole:
     Type: "AWS::IAM::Role"
     Properties:
@@ -75,3 +82,11 @@ Resources:
                 Action:
                   - "cloudformation:DeleteStack"
                 Resource: !Sub "arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/${StackName}/*"
+              - Effect: "Allow"
+                Action:
+                  - "ec2:De*"
+                  - "ec2:Dis*"
+                  - "ec2:Re*"
+                  - "iam:De*"
+                  - "eks:De*"
+                Resource: "*"
