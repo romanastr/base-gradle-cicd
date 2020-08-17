@@ -1,0 +1,92 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: "Automatic timed shutdown of EKS CI/CD cluster"
+Parameters:
+  StackName:
+    Type: String
+    Description: Stack name that will be deleted.
+Resources:
+  TimedShutdownRule:
+    Type: "AWS::Events::Rule"
+    Properties:
+      Description: "Shutdown EKS CI/CD cluster at specified time"
+      ScheduleExpression: "cron(0 3 * * ? *)"
+      Targets:
+        -
+          Arn: !GetAtt DeleteCFNLambda.Arn
+          Id: 'DeleteCFNLambda'
+  DeleteCFNLambda:
+    Type: "AWS::Lambda::Function"
+    DependsOn:
+      - DeleteCFNLambdaExecutionRole
+    Properties:
+      FunctionName: !Sub "DeleteCFNLambda-${StackName}"
+      Code:
+        ZipFile: |
+          import boto3
+          import os
+          import json
+
+          stack_name = os.environ['stackName']
+
+          def delete_cfn(stack_name):
+              try:
+                  cfn = boto3.resource('cloudformation')
+                  stack = cfn.Stack(stack_name)
+                  stack.delete()
+                  return "SUCCESS"
+              except:
+                  return "ERROR"
+
+          def handler(event, context):
+              print("Received event:")
+              print(json.dumps(event))
+              return delete_cfn(stack_name)
+      Environment:
+        Variables:
+          stackName: !Ref 'StackName'
+      Handler: "index.handler"
+      Runtime: "python3.7"
+      Timeout: "5"
+      Role: !GetAtt DeleteCFNLambdaExecutionRole.Arn
+  PermissionForDeleteCFNLambda:
+    Type: "AWS::Lambda::Permission"
+    Properties:
+      FunctionName: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:DeleteCFNLambda-${StackName}"
+      Action: "lambda:InvokeFunction"
+      Principal: "events.amazonaws.com"
+      SourceArn: !GetAtt TimedShutdownRule.Arn
+  DeleteCFNLambdaExecutionRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action: "sts:AssumeRole"
+      Path: "/"
+      Policies:
+        - PolicyName: "lambda_policy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action:
+                  - "logs:CreateLogGroup"
+                  - "logs:CreateLogStream"
+                  - "logs:PutLogEvents"
+                Resource: "arn:aws:logs:*:*:*"
+              - Effect: "Allow"
+                Action:
+                  - "cloudformation:DeleteStack"
+                Resource: !Sub "arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/${StackName}/*"
+              - Effect: "Allow"
+                Action:
+                  - "ec2:De*"
+                  - "ec2:Dis*"
+                  - "ec2:Re*"
+                  - "iam:De*"
+                  - "eks:De*"
+                Resource: "*"

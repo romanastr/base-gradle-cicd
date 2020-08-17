@@ -1,0 +1,8 @@
+- name: "Create EKS cluster shutdown"
+  cloudformation:
+    stack_name: "{{eks_cache_cluster_stack_name}}-shutdown"
+    state: "present"
+    region: "{{aws_region}}"
+    template_body: "{{lookup('template', 'eks-cache-cluster-shutdown.yml')}}"
+    template_parameters:
+      StackName: "{{eks_cache_cluster_stack_name}}"

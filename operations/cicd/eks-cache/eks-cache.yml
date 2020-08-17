@@ -1,0 +1,8 @@
+---
+- name: "Create an EKS cluster with build cache nodes"
+  hosts: localhost
+  connection: local
+  roles:
+    - eks-cache-cluster
+    - eks-cache-cluster-shutdown
+    - build-cache-nodes
