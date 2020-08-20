@@ -15,3 +15,4 @@ eks_cache_cluster_name: cache-cluster
 eks_cache_cluster_stack_name: EKS-Cluster-CICD
 eks_cache_cluster_kubernetes_version: 1.17
 eks_cache_cluster_cidr_block: 192.168.100.0/25
+k8s_cache_cluster_namespace: build-cache

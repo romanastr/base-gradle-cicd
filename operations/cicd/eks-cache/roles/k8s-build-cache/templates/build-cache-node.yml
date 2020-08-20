@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: Build-cache-node
+spec:
+  containers:
+    - name: gradle-build-cache
+      image: gradle/build-cache-node:9.3
