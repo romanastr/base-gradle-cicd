@@ -5,4 +5,4 @@
     region: "{{aws_region}}"
     template_body: "{{lookup('template', 'eks-cache-cluster-shutdown.yml')}}"
     template_parameters:
-      StackName: "{{eks_cache_cluster_stack_name}}"
+      StackNames: "{{eks_cache_cluster_stack_name}}-EFS-Mount, {{eks_cache_cluster_stack_name}}"

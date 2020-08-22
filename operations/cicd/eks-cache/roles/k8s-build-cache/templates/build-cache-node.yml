@@ -1,8 +1,38 @@
 apiVersion: v1
-kind: Pod
+kind: Service
 metadata:
-  name: Build-cache-node
+  name: "{{eks_cache_cluster_name}}-service"
+  namespace: "{{k8s_cache_cluster_namespace}}"
 spec:
-  containers:
-    - name: gradle-build-cache
-      image: gradle/build-cache-node:9.3
+  selector:
+    app: "{{k8s_cache_cluster_namespace}}"
+    tier: "{{eks_cache_cluster_name}}"
+  ports:
+    - protocol: "TCP"
+      port: 80
+      targetPort: 5071
+  type: LoadBalancer
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "{{eks_cache_cluster_name}}-deployment"
+  namespace: "{{k8s_cache_cluster_namespace}}"
+spec:
+  selector:
+    matchLabels:
+      app: "{{k8s_cache_cluster_namespace}}"
+      tier: "{{eks_cache_cluster_name}}"
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: "{{k8s_cache_cluster_namespace}}"
+        tier: "{{eks_cache_cluster_name}}"
+    spec:
+      containers:
+        - name: gradle-build-cache
+          image: gradle/build-cache-node:9.3
+          ports:
+            - containerPort: 5071
+              protocol: TCP

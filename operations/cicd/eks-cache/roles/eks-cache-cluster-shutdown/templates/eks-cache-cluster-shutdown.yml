@@ -1,9 +1,9 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: "Automatic timed shutdown of EKS CI/CD cluster"
 Parameters:
-  StackName:
+  StackNames:
     Type: String
-    Description: Stack name that will be deleted.
+    Description: Comma-separated list of stack name that will be deleted in the provided order.
 Resources:
   TimedShutdownRule:
     Type: "AWS::Events::Rule"
@@ -19,20 +19,21 @@ Resources:
     DependsOn:
       - DeleteCFNLambdaExecutionRole
     Properties:
-      FunctionName: !Sub "DeleteCFNLambda-${StackName}"
+      FunctionName: "DeleteCFNStacksLambda"
       Code:
         ZipFile: |
           import boto3
           import os
           import json
 
-          stack_name = os.environ['stackName']
+          stack_names = os.environ['StackNames'].split(", ")
 
-          def delete_cfn(stack_name):
+          def delete_cfn(stack_names):
               try:
                   cfn = boto3.resource('cloudformation')
-                  stack = cfn.Stack(stack_name)
-                  stack.delete()
+                  for stack_name in stack_names:
+                      stack = cfn.Stack(stack_name)
+                      stack.delete()
                   return "SUCCESS"
               except:
                   return "ERROR"
@@ -43,7 +44,7 @@ Resources:
               return delete_cfn(stack_name)
       Environment:
         Variables:
-          stackName: !Ref 'StackName'
+          StackNames: !Ref 'StackNames'
       Handler: "index.handler"
       Runtime: "python3.7"
       Timeout: "5"
@@ -51,7 +52,7 @@ Resources:
   PermissionForDeleteCFNLambda:
     Type: "AWS::Lambda::Permission"
     Properties:
-      FunctionName: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:DeleteCFNLambda-${StackName}"
+      FunctionName: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:DeleteCFNStacksLambda"
       Action: "lambda:InvokeFunction"
       Principal: "events.amazonaws.com"
       SourceArn: !GetAtt TimedShutdownRule.Arn
@@ -81,7 +82,7 @@ Resources:
               - Effect: "Allow"
                 Action:
                   - "cloudformation:DeleteStack"
-                Resource: !Sub "arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/${StackName}/*"
+                Resource: !Sub "arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/*"
               - Effect: "Allow"
                 Action:
                   - "ec2:De*"
