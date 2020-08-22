@@ -32,6 +32,7 @@ Resources:
               try:
                   cfn = boto3.resource('cloudformation')
                   for stack_name in stack_names:
+                      print("Deleting stack " + stack_name)
                       stack = cfn.Stack(stack_name)
                       stack.delete()
                   return "SUCCESS"
@@ -41,7 +42,7 @@ Resources:
           def handler(event, context):
               print("Received event:")
               print(json.dumps(event))
-              return delete_cfn(stack_name)
+              return delete_cfn(stack_names)
       Environment:
         Variables:
           StackNames: !Ref 'StackNames'
@@ -90,4 +91,5 @@ Resources:
                   - "ec2:Re*"
                   - "iam:De*"
                   - "eks:De*"
+                  - "elasticfilesystem:De*"
                 Resource: "*"

@@ -1,4 +1,4 @@
-- name: "Deploy EKS pods for Build Cache"
+- name: "Create EFS mount for Build Cache"
   cloudformation:
     stack_name: "{{eks_cache_cluster_stack_name}}-EFS-Mount"
     state: "present"
