@@ -1,5 +1,5 @@
 - name: "Establish contact with the EKS cluster"
-  shell: "aws eks --region us-east-1 update-kubeconfig --name {{eks_cache_cluster_name}}"
+  shell: "aws eks --region {{aws_region}} update-kubeconfig --name {{eks_cache_cluster_name}}"
 - name: "Create a k8s namespace"
   k8s:
     name: "{{k8s_cache_cluster_namespace}}"

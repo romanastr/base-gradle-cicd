@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: "EKS Cluster for CI/CD - copy from eksctl"
+Description: "EKS Cluster for CI/CD"
 Resources:
   ClusterSharedNodeSecurityGroup:
     Type: 'AWS::EC2::SecurityGroup'

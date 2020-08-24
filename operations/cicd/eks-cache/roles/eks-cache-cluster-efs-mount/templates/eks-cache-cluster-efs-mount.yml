@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: "EKS Cluster for CI/CD - copy from eksctl"
+Description: "EFS Mount for EKS Cluster for CI/CD"
 Resources:
   FileSystemResource:
     Type: 'AWS::EFS::FileSystem'
