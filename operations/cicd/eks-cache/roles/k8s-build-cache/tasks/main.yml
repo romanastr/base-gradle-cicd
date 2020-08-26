@@ -1,4 +1,4 @@
-- name: "Establish contact with the EKS cluster"
+- name: "Deploy build cache nodes to EKS cache cluster"
   shell: "aws eks --region {{aws_region}} update-kubeconfig --name {{eks_cache_cluster_name}}"
 - name: "Create a k8s namespace"
   k8s:
