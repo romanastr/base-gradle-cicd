@@ -4,5 +4,6 @@
   connection: local
   roles:
     - eks-cache-cluster
+    - eks-cache-cluster-efs-mount
     - eks-cache-cluster-shutdown
-    - build-cache-nodes
+    - k8s-build-cache

@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: "EKS Cluster for CI/CD - copy from eksctl"
+Description: "EKS Cluster for CI/CD"
 Resources:
   ClusterSharedNodeSecurityGroup:
     Type: 'AWS::EC2::SecurityGroup'
@@ -313,13 +313,14 @@ Outputs:
     Export:
       Name: !Sub '${AWS::StackName}::SharedNodeSecurityGroup'
     Value: !Ref ClusterSharedNodeSecurityGroup
-  SubnetsPrivate:
+  PrivateSubnet1:
     Export:
-      Name: !Sub '${AWS::StackName}::SubnetsPrivate'
-    Value: !Join
-      - ','
-      - - !Ref SubnetPrivateUSEAST1D
-        - !Ref SubnetPrivateUSEAST1F
+      Name: !Sub '${AWS::StackName}::PrivateSubnet1'
+    Value: !Ref SubnetPrivateUSEAST1D
+  PrivateSubnet2:
+    Export:
+      Name: !Sub '${AWS::StackName}::PrivateSubnet2'
+    Value: !Ref SubnetPrivateUSEAST1F
   SubnetsPublic:
     Export:
       Name: !Sub '${AWS::StackName}::SubnetsPublic'

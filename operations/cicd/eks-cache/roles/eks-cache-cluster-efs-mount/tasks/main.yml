@@ -1,0 +1,6 @@
+- name: "Create EFS mount for Build Cache"
+  cloudformation:
+    stack_name: "{{eks_cache_cluster_stack_name}}-EFS-Mount"
+    state: "present"
+    region: "{{aws_region}}"
+    template_body: "{{lookup('template', 'eks-cache-cluster-efs-mount.yml')}}"

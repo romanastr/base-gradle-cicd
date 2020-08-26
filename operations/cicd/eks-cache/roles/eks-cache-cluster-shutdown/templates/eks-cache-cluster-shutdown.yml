@@ -1,15 +1,15 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: "Automatic timed shutdown of EKS CI/CD cluster"
 Parameters:
-  StackName:
-    Type: String
-    Description: Stack name that will be deleted.
+  OperationList:
+    Type: CommaDelimitedList
+    Description: "List of operations that will be invoked - lambda or cfn"
 Resources:
   TimedShutdownRule:
     Type: "AWS::Events::Rule"
     Properties:
       Description: "Shutdown EKS CI/CD cluster at specified time"
-      ScheduleExpression: "cron(0 3 * * ? *)"
+      ScheduleExpression: "cron(0/5 3 * * ? *)"
       Targets:
         -
           Arn: !GetAtt DeleteCFNLambda.Arn
@@ -19,31 +19,51 @@ Resources:
     DependsOn:
       - DeleteCFNLambdaExecutionRole
     Properties:
-      FunctionName: !Sub "DeleteCFNLambda-${StackName}"
+      FunctionName: "DeleteCFNStacksLambda"
       Code:
         ZipFile: |
           import boto3
           import os
-          import json
 
-          stack_name = os.environ['stackName']
+          operations = os.environ['Operations'].strip("[]").split(",")
+          print("All operations " + str(operations))
+          cfn = boto3.client('cloudformation')
+          lam = boto3.client('lambda')
 
           def delete_cfn(stack_name):
               try:
-                  cfn = boto3.resource('cloudformation')
-                  stack = cfn.Stack(stack_name)
-                  stack.delete()
-                  return "SUCCESS"
-              except:
-                  return "ERROR"
+                  print("Checking stack " + stack_name)
+                  cfn.describe_stacks(StackName = stack_name)
+                  print("Deleting stack " + stack_name)
+                  cfn.delete_stack(StackName = stack_name)
+              except Exception as ex:
+                  print_exception(ex)
+                  pass
+
+          def invoke_lambda(function_name):
+              try:
+                  print("Invoking lambda function " + function_name)
+                  lam.invoke(FunctionName = function_name, InvocationType = 'Event')
+              except Exception as ex:
+                  print_exception(ex)
+                  pass
+
+          def print_exception(exception):
+              template = "Exception of type {0} with message \"{1}\" occurred"
+              print(template.format(type(exception).__name__, str(exception)))
 
           def handler(event, context):
-              print("Received event:")
-              print(json.dumps(event))
-              return delete_cfn(stack_name)
+              for operation in operations:
+                  print("Processing operation " + operation)
+                  (action, name) = operation.strip("'").split(":")
+                  switcher = {
+                    "cfn": delete_cfn,
+                    "lambda": invoke_lambda
+                  }
+                  switcher.get(action, lambda: "Wrong action")(name)
       Environment:
         Variables:
-          stackName: !Ref 'StackName'
+          Operations: !Join [",", !Ref OperationList]
       Handler: "index.handler"
       Runtime: "python3.7"
       Timeout: "5"
@@ -51,7 +71,7 @@ Resources:
   PermissionForDeleteCFNLambda:
     Type: "AWS::Lambda::Permission"
     Properties:
-      FunctionName: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:DeleteCFNLambda-${StackName}"
+      FunctionName: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:DeleteCFNStacksLambda"
       Action: "lambda:InvokeFunction"
       Principal: "events.amazonaws.com"
       SourceArn: !GetAtt TimedShutdownRule.Arn
@@ -80,13 +100,12 @@ Resources:
                 Resource: "arn:aws:logs:*:*:*"
               - Effect: "Allow"
                 Action:
-                  - "cloudformation:DeleteStack"
-                Resource: !Sub "arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/${StackName}/*"
-              - Effect: "Allow"
-                Action:
+                  - "cloudformation:De*"
+                  - "lambda:InvokeFunction"
                   - "ec2:De*"
                   - "ec2:Dis*"
                   - "ec2:Re*"
                   - "iam:De*"
                   - "eks:De*"
+                  - "elasticfilesystem:De*"
                 Resource: "*"
