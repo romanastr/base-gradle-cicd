@@ -13,8 +13,38 @@ spec:
       targetPort: 5071
   type: LoadBalancer
 ---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: efs-pv
+  namespace: "{{k8s_cache_cluster_namespace}}"
+spec:
+  capacity:
+    storage: 20Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: efs-sc
+  csi:
+    driver: efs.csi.aws.com
+    volumeHandle: "{{efs_cache_mount_id}}"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: block-pvc
+  namespace: "{{k8s_cache_cluster_namespace}}"
+spec:
+  accessModes:
+    - ReadWriteOnce
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: 20Gi
+---
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: "{{eks_cache_cluster_name}}-deployment"
   namespace: "{{k8s_cache_cluster_namespace}}"
@@ -23,6 +53,7 @@ spec:
     matchLabels:
       app: "{{k8s_cache_cluster_namespace}}"
       tier: "{{eks_cache_cluster_name}}"
+  serviceName: "{{k8s_cache_cluster_namespace}}"
   replicas: 1
   template:
     metadata:
@@ -36,3 +67,10 @@ spec:
           ports:
             - containerPort: 5071
               protocol: TCP
+          volumeMounts:
+            - name: "{{k8s_cache_cluster_volume_name}}"
+              mountPath: /data
+      volumes:
+        - name: "{{k8s_cache_cluster_volume_name}}"
+          persistentVolumeClaim:
+            claimName: block-pvc
