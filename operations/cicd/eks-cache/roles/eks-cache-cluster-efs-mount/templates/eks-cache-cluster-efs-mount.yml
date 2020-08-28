@@ -41,3 +41,6 @@ Resources:
     Type: 'AWS::EFS::AccessPoint'
     Properties:
       FileSystemId: !Ref FileSystemResource
+Outputs:
+  EFSMountId:
+    Value: !Ref FileSystemResource

@@ -6,6 +6,9 @@
     api_version: v1
     kind: Namespace
     state: present
+- name: "Deploy EFS CSI driver"
+  k8s:
+    definition: "{{ lookup('template', 'efs-csi-driver.yml') }}"
 - name: "Deploy build cache node"
   k8s:
     definition: "{{ lookup('template', 'build-cache-node.yml') }}"
