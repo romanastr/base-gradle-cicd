@@ -14,21 +14,36 @@ Resources:
 
           target_vpc = os.environ['TargetVPC']
           elb_client = boto3.client('elb')
+          ec2_client = boto3.client('ec2')
 
           def print_exception(exception):
               template = "Exception of type {0} with message \"{1}\" occurred"
               print(template.format(type(exception).__name__, str(exception)))
 
-          def handler(event, context):
+          def delete_lbs():
               bals = elb_client.describe_load_balancers()
               for elb in bals['LoadBalancerDescriptions']:
                   if(elb['VPCId'] == target_vpc):
                       try:
-                          print("Deleting load balancer with name " + elb['LoadBalancerName'])
+                          print("Deleting load balancer with name = " + elb['LoadBalancerName'])
                           elb_client.delete_load_balancer(LoadBalancerName = elb['LoadBalancerName'])
                       except Exception as ex:
                           print_exception(ex)
                           pass
+
+          def delete_sgs():
+              sgs = ec2_client.describe_security_groups(Filters=[{'Name': 'vpc-id', 'Values': [target_vpc]}])
+              for sg in sgs['SecurityGroups']:
+                  try:
+                      print("Deleting a security group with id = " + sg['GroupId'])
+                      ec2_client.delete_security_group(GroupId = sg['GroupId'])
+                  except Exception as ex:
+                         print_exception(ex)
+                         pass
+
+          def handler(event, context):
+              delete_lbs()
+              delete_sgs()
       Environment:
         Variables:
           TargetVPC: "{{eks_cache_cluster_vpc_id}}"
@@ -70,6 +85,7 @@ Resources:
               - Effect: "Allow"
                 Action:
                   - "elasticloadbalancing:*"
+                  - "ec2:De*"
                   - "ec2:Dis*"
                   - "ec2:Re*"
                 Resource: "*"
