@@ -7,3 +7,4 @@
     - eks-cache-cluster-efs-mount
     - eks-cache-cluster-shutdown
     - k8s-build-cache
+    - cache-node-url-upload

@@ -1,7 +1,9 @@
+val isCiServer = System.getenv().containsKey("CI")
+val cacheUrl = System.getenv("BUILD_CACHE_URL")
 buildCache {
     remote<HttpBuildCache> {
-        url = uri("http://localhost/cache/")
-        isPush = true
+        url = uri(cacheUrl)
+        isPush = isCiServer
     }
 }
 

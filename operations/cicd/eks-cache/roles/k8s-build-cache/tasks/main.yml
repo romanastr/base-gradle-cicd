@@ -12,3 +12,15 @@
 - name: "Deploy build cache node"
   k8s:
     definition: "{{ lookup('template', 'build-cache-node.yml') }}"
+- name: "Get the Cache Node load balancer URL"
+  k8s_info:
+    api_version: v1
+    kind: Service
+    name: "{{eks_cache_cluster_name}}-service"
+    namespace: "{{k8s_cache_cluster_namespace}}"
+  register: output
+- name: "Register the Cache Node load balancer URL"
+  set_fact:
+    cache_node_url: "{{output.resources[0].status.loadBalancer.ingress[0].hostname}}"
+- name: "Print the Cache Node load balancer URL"
+  debug: msg="Load Balancer URL = {{ cache_node_url }}"
