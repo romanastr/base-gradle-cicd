@@ -86,6 +86,9 @@ Resources:
           - Name: "BUILD_CACHE_URL"
             Value: "{{cache_node_url_ssm_parameter}}"
             Type: "PARAMETER_STORE"
+          - Name: "CI"
+            Value: "true"
+            Type: "PLAINTEXT"
       Name: "{{project_name}}-CodeBuild-PR-Status"
       ServiceRole: "{{codebuild_role_arn}}"
       Source:
