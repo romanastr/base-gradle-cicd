@@ -65,8 +65,8 @@ Resources:
         Image: "aws/codebuild/standard:4.0"
         Type: "LINUX_CONTAINER"
         EnvironmentVariables:
-          - Name: "BUILD_CACHE_URL"
-            Value: "{{cache_node_url_ssm_parameter}}"
+          - Name: "BUILD_CACHE_HOST"
+            Value: "{{cache_node_host_ssm_parameter}}"
             Type: "PARAMETER_STORE"
           - Name: "CI"
             Value: "true"

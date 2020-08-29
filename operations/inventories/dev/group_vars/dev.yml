@@ -11,7 +11,7 @@ github_token: !vault |
   34356536386232656630333238633039376239643033383466623631353332626436316431613938
   3966313835353066636532626636383930623364353239626238
 github_token_ssm_parameter: /CICD/GitHub/Token
-cache_node_url_ssm_parameter: /CICD/CacheNode/URL
+cache_node_host_ssm_parameter: /CICD/CacheNode/URL
 eks_cache_cluster_name: cache-cluster
 eks_cache_cluster_stack_name: EKS-Cluster-CICD
 eks_cache_cluster_kubernetes_version: 1.17
