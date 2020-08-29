@@ -3,6 +3,8 @@ kind: Service
 metadata:
   name: "{{eks_cache_cluster_name}}-service"
   namespace: "{{k8s_cache_cluster_namespace}}"
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-backend-protocol: http
 spec:
   selector:
     app: "{{k8s_cache_cluster_namespace}}"

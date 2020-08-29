@@ -7,12 +7,13 @@ phases:
       - chmod +x gradlew
   build:
     commands:
-      - ./gradlew clean build -x test
+      - printenv
+      - ./gradlew --build-cache clean build -x test --info
   post_build:
     commands:
       - |
         if [[ $CODEBUILD_BUILD_SUCCEEDING = 1 ]]; then
-          ./gradlew test
+          ./gradlew --build-cache test
         fi
 reports:
   GradleCICDReportGroup:
