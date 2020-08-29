@@ -8,7 +8,7 @@ phases:
   build:
     commands:
       - printenv
-      - ./gradlew --build-cache clean build -x test
+      - ./gradlew --build-cache clean build -x test --info
   post_build:
     commands:
       - |
