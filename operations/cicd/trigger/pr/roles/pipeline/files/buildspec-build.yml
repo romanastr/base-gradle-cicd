@@ -7,6 +7,7 @@ phases:
       - chmod +x gradlew
   build:
     commands:
+      - printenv
       - ./gradlew --build-cache clean build -x test
   post_build:
     commands:
