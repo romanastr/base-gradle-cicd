@@ -1,5 +1,5 @@
-val cacheUrl = System.getProperty("BUILD_CACHE_URL")
-val isCiServer = System.getProperty("CI") == "true"
+val cacheUrl = System.getenv("BUILD_CACHE_URL")
+val isCiServer = System.getenv("CI") == "true"
 print("cacheUrl = " + cacheUrl + "\n")
 print("CI = " + isCiServer + "\n")
 buildCache {
