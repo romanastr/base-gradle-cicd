@@ -19,6 +19,9 @@
     name: "{{eks_cache_cluster_name}}-service"
     namespace: "{{k8s_cache_cluster_namespace}}"
   register: output
+  until: output.resources[0].status.loadBalancer.ingress is defined
+  retries: 10
+  delay: 10
 - name: "Register the Cache Node load balancer URL"
   set_fact:
     cache_node_url: "{{output.resources[0].status.loadBalancer.ingress[0].hostname}}"
