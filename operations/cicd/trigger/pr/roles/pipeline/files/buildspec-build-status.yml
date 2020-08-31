@@ -46,6 +46,6 @@ phases:
          --data-raw '{
            "state": "'"$TARGET_STATE"'",
            "target_url": "'"$TARGET_URL"'",
-           "description": "The status of build && unit tests",
+           "description": "The status of build & unit tests",
            "context": "pr-build-unit-tests"
          }'
