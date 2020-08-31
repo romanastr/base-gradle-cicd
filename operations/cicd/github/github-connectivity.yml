@@ -1,0 +1,6 @@
+---
+- name: "Connect AWS account to GitHub for CodeBuild and adhoc operations"
+  hosts: localhost
+  connection: local
+  roles:
+    - token-placement

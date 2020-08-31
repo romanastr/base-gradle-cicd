@@ -1,0 +1,6 @@
+- name: "Place GitHub token into Parameter Store as a secure string"
+  shell: |
+    aws ssm put-parameter --name "{{github_token_ssm_parameter}}" --type "SecureString" --value "{{github_token}}" --overwrite
+- name: "Place GitHub token into Codebuild storage"
+  shell: |
+    aws codebuild import-source-credentials --token "{{github_token}}" --server-type GITHUB --auth-type PERSONAL_ACCESS_TOKEN
