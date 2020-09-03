@@ -1,12 +1,12 @@
 - name: "Create EFS mount for Build Cache"
   cloudformation:
     stack_name: "{{eks_cache_cluster_stack_name}}-EFS-Mount"
-    state: "present"
+    state: present
     region: "{{aws_region}}"
     template_body: "{{lookup('template', 'eks-cache-cluster-efs-mount.yml')}}"
   register: output
-- name: Register EFS Mount id
+- name: "Register EFS Mount id"
   set_fact:
     efs_cache_mount_id: "{{output.stack_outputs.EFSMountId}}"
-- name: Print EFS Mount id
+- name: "Print EFS Mount id"
   debug: msg="EFS cache mount id = {{ efs_cache_mount_id }}"

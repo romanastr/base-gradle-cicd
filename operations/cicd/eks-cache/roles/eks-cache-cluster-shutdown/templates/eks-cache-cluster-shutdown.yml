@@ -6,20 +6,20 @@ Parameters:
     Description: "List of operations that will be invoked - lambda or cfn"
 Resources:
   TimedShutdownRule:
-    Type: "AWS::Events::Rule"
+    Type: AWS::Events::Rule
     Properties:
       Description: "Shutdown EKS CI/CD cluster at specified time"
       ScheduleExpression: "cron(0/5 3 * * ? *)"
       Targets:
         -
           Arn: !GetAtt DeleteCFNLambda.Arn
-          Id: 'DeleteCFNLambda'
+          Id: DeleteCFNLambda
   DeleteCFNLambda:
-    Type: "AWS::Lambda::Function"
+    Type: AWS::Lambda::Function
     DependsOn:
       - DeleteCFNLambdaExecutionRole
     Properties:
-      FunctionName: "DeleteCFNStacksLambda"
+      FunctionName: DeleteCFNStacksLambda
       Code:
         ZipFile: |
           import boto3
@@ -64,48 +64,48 @@ Resources:
       Environment:
         Variables:
           Operations: !Join [",", !Ref OperationList]
-      Handler: "index.handler"
-      Runtime: "python3.7"
-      Timeout: "5"
+      Handler: index.handler
+      Runtime: python3.7
+      Timeout: 5
       Role: !GetAtt DeleteCFNLambdaExecutionRole.Arn
   PermissionForDeleteCFNLambda:
-    Type: "AWS::Lambda::Permission"
+    Type: AWS::Lambda::Permission
     Properties:
-      FunctionName: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:DeleteCFNStacksLambda"
-      Action: "lambda:InvokeFunction"
-      Principal: "events.amazonaws.com"
+      FunctionName: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:DeleteCFNStacksLambda
+      Action: lambda:InvokeFunction
+      Principal: events.amazonaws.com
       SourceArn: !GetAtt TimedShutdownRule.Arn
   DeleteCFNLambdaExecutionRole:
-    Type: "AWS::IAM::Role"
+    Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
-        Version: "2012-10-17"
+        Version: 2012-10-17
         Statement:
-          - Effect: "Allow"
+          - Effect: Allow
             Principal:
               Service:
                 - lambda.amazonaws.com
-            Action: "sts:AssumeRole"
+            Action: sts:AssumeRole
       Path: "/"
       Policies:
-        - PolicyName: "lambda_policy"
+        - PolicyName: lambda_policy
           PolicyDocument:
-            Version: "2012-10-17"
+            Version: 2012-10-17
             Statement:
-              - Effect: "Allow"
+              - Effect: Allow
                 Action:
-                  - "logs:CreateLogGroup"
-                  - "logs:CreateLogStream"
-                  - "logs:PutLogEvents"
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
                 Resource: "arn:aws:logs:*:*:*"
-              - Effect: "Allow"
+              - Effect: Allow
                 Action:
-                  - "cloudformation:De*"
-                  - "lambda:InvokeFunction"
-                  - "ec2:De*"
-                  - "ec2:Dis*"
-                  - "ec2:Re*"
-                  - "iam:De*"
-                  - "eks:De*"
-                  - "elasticfilesystem:De*"
+                  - cloudformation:De*
+                  - lambda:InvokeFunction
+                  - ec2:De*
+                  - ec2:Dis*
+                  - ec2:Re*
+                  - iam:De*
+                  - eks:De*
+                  - elasticfilesystem:De*
                 Resource: "*"

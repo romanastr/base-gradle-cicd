@@ -10,7 +10,7 @@ spec:
     app: "{{k8s_cache_cluster_namespace}}"
     tier: "{{eks_cache_cluster_name}}"
   ports:
-    - protocol: "TCP"
+    - protocol: TCP
       port: 80
       targetPort: 5071
   type: LoadBalancer

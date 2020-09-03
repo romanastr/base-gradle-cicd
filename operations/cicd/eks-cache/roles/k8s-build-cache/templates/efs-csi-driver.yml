@@ -1,6 +1,5 @@
 ---
 # images https://github.com/kubernetes-sigs/aws-efs-csi-driver/blob/master/deploy/kubernetes/overlays/stable/ecr/kustomization.yaml
-# Node Service
 kind: DaemonSet
 apiVersion: apps/v1
 metadata:
@@ -37,7 +36,7 @@ spec:
           volumeMounts:
             - name: kubelet-dir
               mountPath: /var/lib/kubelet
-              mountPropagation: "Bidirectional"
+              mountPropagation: Bidirectional
             - name: plugin-dir
               mountPath: /csi
             - name: efs-state-dir

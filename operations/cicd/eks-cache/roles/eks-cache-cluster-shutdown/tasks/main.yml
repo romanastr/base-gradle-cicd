@@ -1,13 +1,13 @@
 - name: "Create a Lambda to destroy load balancers"
   cloudformation:
     stack_name: "{{eks_cache_cluster_stack_name}}-Destroy-Load-Balancers"
-    state: "present"
+    state: present
     region: "{{aws_region}}"
     template_body: "{{lookup('template', 'eks-destroy-loadbalancers.yml')}}"
 - name: "Create EKS cluster shutdown"
   cloudformation:
     stack_name: "{{eks_cache_cluster_stack_name}}-shutdown"
-    state: "present"
+    state: present
     region: "{{aws_region}}"
     template_body: "{{lookup('template', 'eks-cache-cluster-shutdown.yml')}}"
     template_parameters:
