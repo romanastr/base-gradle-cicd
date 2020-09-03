@@ -13,7 +13,7 @@ Resources:
     Type: 'AWS::EC2::SecurityGroup'
     Properties:
       GroupDescription: Security group for EFS
-      VpcId: !ImportValue "{{eks_cache_cluster_stack_name}}::VPC"
+      VpcId: "{{eks_cache_cluster_vpc_id}}"
   EFSSecurityGroupIngress:
     Type: 'AWS::EC2::SecurityGroupIngress'
     Properties:
