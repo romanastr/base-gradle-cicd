@@ -8,5 +8,5 @@
 - name: "Register VPC id"
   set_fact:
     eks_cache_cluster_vpc_id: "{{output.stack_outputs.VPC}}"
-- name: Print VPC id
+- name: "Print VPC id"
   debug: msg="EKS cache cluster VPC id = {{ eks_cache_cluster_vpc_id }}"

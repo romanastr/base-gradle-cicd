@@ -2,27 +2,26 @@ AWSTemplateFormatVersion: 2010-09-09
 Description: "CodeBuild project for loading code from GitHub to S3 on PR"
 Resources:
   CodeBuildPr:
-    Type: "AWS::CodeBuild::Project"
+    Type: AWS::CodeBuild::Project
     Properties:
       Artifacts:
         ArtifactIdentifier: "Sources for PR builds"
-        EncryptionDisabled: "false"
-        Packaging: "NONE"
-        Location: !Ref "S3OutputBucket"
+        EncryptionDisabled: false
+        Packaging: NONE
+        Location: !Ref S3OutputBucket
         Name: "/"
-        Type: "S3"
+        Type: S3
       Description: "PR trigger CodeBuild"
       Environment:
-        ComputeType: "BUILD_GENERAL1_SMALL"
-        Image: "aws/codebuild/standard:4.0"
-        Type: "LINUX_CONTAINER"
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: aws/codebuild/standard:4.0
+        Type: LINUX_CONTAINER
       Name: "{{project_name}}-CodeBuild-PR-trigger"
       ServiceRole: "{{codebuild_role_arn}}"
       Source:
         ReportBuildStatus: true
         BuildStatusConfig:
-          Context: "pr-trigger"
-          TargetUrl: "http://example.com"
+          Context: pr-trigger
         BuildSpec: |
           version: 0.2
           phases:
@@ -32,21 +31,21 @@ Resources:
           artifacts:
             files:
               - {{source_artifact_key}}
-        Type: "GITHUB"
-        Location: "https://github.com/romanastr/base-gradle-cicd"
+        Type: GITHUB
+        Location: https://github.com/romanastr/base-gradle-cicd
       Triggers:
         FilterGroups:
           -
-            - Type: "EVENT"
+            - Type: EVENT
               Pattern: PULL_REQUEST_CREATED, PULL_REQUEST_UPDATED, PULL_REQUEST_REOPENED
         Webhook: true
   S3OutputBucket:
-    Type: "AWS::S3::Bucket"
+    Type: AWS::S3::Bucket
     Properties:
       BucketName: "{{source_artifact_bucket_name}}"
       BucketEncryption:
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault:
-              SSEAlgorithm: "AES256"
+              SSEAlgorithm: AES256
       VersioningConfiguration:
-        Status: "Enabled"
+        Status: Enabled

@@ -291,13 +291,6 @@ Outputs:
     Export:
       Name: !Sub ${AWS::StackName}::PrivateSubnet2
     Value: !Ref SubnetPrivateUSEAST1F
-  SubnetsPublic:
-    Export:
-      Name: !Sub ${AWS::StackName}::SubnetsPublic
-    Value: !Join
-      - ","
-      - - !Ref SubnetPublicUSEAST1D
-        - !Ref SubnetPublicUSEAST1F
   VPC:
     Export:
       Name: !Sub ${AWS::StackName}::VPC
