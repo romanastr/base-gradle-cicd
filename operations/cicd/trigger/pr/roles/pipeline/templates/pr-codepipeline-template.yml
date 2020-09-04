@@ -2,7 +2,7 @@ AWSTemplateFormatVersion: 2010-09-09
 Description: "CodePipeline project"
 Resources:
   CodePipeline:
-    Type: "AWS::CodePipeline::Pipeline"
+    Type: AWS::CodePipeline::Pipeline
     Properties:
       Name: "{{project_name}}-PR-Pipeline"
       RoleArn: "{{codepipeline_role_arn}}"
@@ -51,47 +51,47 @@ Resources:
               RunOrder: 1
       ArtifactStore:
         Type: S3
-        Location: !Ref "CodePipelineArtifactStoreBucket"
+        Location: !Ref CodePipelineArtifactStoreBucket
   CodePipelineArtifactStoreBucket:
-    Type: "AWS::S3::Bucket"
+    Type: AWS::S3::Bucket
   CodeBuildBuild:
-    Type: "AWS::CodeBuild::Project"
+    Type: AWS::CodeBuild::Project
     Properties:
       Artifacts:
-        Type: "CODEPIPELINE"
+        Type: CODEPIPELINE
       Description: "Main Build for PRs"
       Environment:
-        ComputeType: "BUILD_GENERAL1_SMALL"
-        Image: "aws/codebuild/standard:4.0"
-        Type: "LINUX_CONTAINER"
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: aws/codebuild/standard:4.0
+        Type: LINUX_CONTAINER
         EnvironmentVariables:
-          - Name: "BUILD_CACHE_HOST"
+          - Name: BUILD_CACHE_HOST
             Value: "{{cache_node_host_ssm_parameter}}"
-            Type: "PARAMETER_STORE"
-          - Name: "CI"
-            Value: "true"
-            Type: "PLAINTEXT"
+            Type: PARAMETER_STORE
+          - Name: CI
+            Value: true
+            Type: PLAINTEXT
       Name: "{{project_name}}-CodeBuild-PR-Main"
       ServiceRole: "{{codebuild_role_arn}}"
       Source:
-        Type: "CODEPIPELINE"
-        BuildSpec: "operations/cicd/trigger/pr/roles/pipeline/files/buildspec-build.yml"
+        Type: CODEPIPELINE
+        BuildSpec: operations/cicd/trigger/pr/roles/pipeline/files/buildspec-build.yml
   CodeBuildStatus:
-    Type: "AWS::CodeBuild::Project"
+    Type: AWS::CodeBuild::Project
     Properties:
       Artifacts:
-        Type: "CODEPIPELINE"
+        Type: CODEPIPELINE
       Description: "Reporting Build status for PRs"
       Environment:
-        ComputeType: "BUILD_GENERAL1_SMALL"
-        Image: "aws/codebuild/standard:4.0"
-        Type: "LINUX_CONTAINER"
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: aws/codebuild/standard:4.0
+        Type: LINUX_CONTAINER
         EnvironmentVariables:
-          - Name: "GITHUB_TOKEN"
+          - Name: GITHUB_TOKEN
             Value: "{{github_token_ssm_parameter}}"
-            Type: "PARAMETER_STORE"
+            Type: PARAMETER_STORE
       Name: "{{project_name}}-CodeBuild-PR-Status"
       ServiceRole: "{{codebuild_role_arn}}"
       Source:
-        Type: "CODEPIPELINE"
-        BuildSpec: "operations/cicd/trigger/pr/roles/pipeline/files/buildspec-build-status.yml"
+        Type: CODEPIPELINE
+        BuildSpec: operations/cicd/trigger/pr/roles/pipeline/files/buildspec-build-status.yml

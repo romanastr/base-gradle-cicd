@@ -2,43 +2,43 @@ AWSTemplateFormatVersion: 2010-09-09
 Description: "EFS Mount for EKS Cluster for CI/CD"
 Resources:
   FileSystemResource:
-    Type: 'AWS::EFS::FileSystem'
+    Type: AWS::EFS::FileSystem
     Properties:
       Encrypted: true
       LifecyclePolicies:
         - TransitionToIA: AFTER_30_DAYS
-      PerformanceMode: "generalPurpose"
-      ThroughputMode: "bursting"
+      PerformanceMode: generalPurpose
+      ThroughputMode: bursting
   EFSSecurityGroup:
-    Type: 'AWS::EC2::SecurityGroup'
+    Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: Security group for EFS
-      VpcId: !ImportValue "{{eks_cache_cluster_stack_name}}::VPC"
+      GroupDescription: "Security group for EFS"
+      VpcId: "{{eks_cache_cluster_vpc_id}}"
   EFSSecurityGroupIngress:
-    Type: 'AWS::EC2::SecurityGroupIngress'
+    Type: AWS::EC2::SecurityGroupIngress
     Properties:
       Description: Allow communication on all ports
       FromPort: 0
       GroupId: !GetAtt EFSSecurityGroup.GroupId
-      IpProtocol: '-1'
+      IpProtocol: -1
       CidrIp: 0.0.0.0/0
       ToPort: 65535
   MountTargetResource1:
-    Type: 'AWS::EFS::MountTarget'
+    Type: AWS::EFS::MountTarget
     Properties:
       FileSystemId: !Ref FileSystemResource
       SubnetId: !ImportValue "{{eks_cache_cluster_stack_name}}::PrivateSubnet1"
       SecurityGroups:
         - !Ref EFSSecurityGroup
   MountTargetResource2:
-    Type: 'AWS::EFS::MountTarget'
+    Type: AWS::EFS::MountTarget
     Properties:
       FileSystemId: !Ref FileSystemResource
       SubnetId: !ImportValue "{{eks_cache_cluster_stack_name}}::PrivateSubnet2"
       SecurityGroups:
         - !Ref EFSSecurityGroup
   AccessPointResource:
-    Type: 'AWS::EFS::AccessPoint'
+    Type: AWS::EFS::AccessPoint
     Properties:
       FileSystemId: !Ref FileSystemResource
 Outputs:

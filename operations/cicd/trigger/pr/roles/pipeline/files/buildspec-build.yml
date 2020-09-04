@@ -18,6 +18,6 @@ phases:
 reports:
   GradleCICDReportGroup:
     files:
-      - '**/build/test-results/test/*.xml'
+      - "**/build/test-results/test/*.xml"
     discard-paths: no
     file-format: JunitXml

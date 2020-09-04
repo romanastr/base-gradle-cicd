@@ -2,7 +2,7 @@ AWSTemplateFormatVersion: 2010-09-09
 Description: "Automatic timed shutdown of EKS CI/CD cluster"
 Resources:
   DestroyElbsLambda:
-    Type: "AWS::Lambda::Function"
+    Type: AWS::Lambda::Function
     DependsOn:
       - DestroyElbsLambdaExecutionRole
     Properties:
@@ -47,45 +47,45 @@ Resources:
       Environment:
         Variables:
           TargetVPC: "{{eks_cache_cluster_vpc_id}}"
-      Handler: "index.handler"
-      Runtime: "python3.7"
-      Timeout: "5"
+      Handler: index.handler
+      Runtime: python3.7
+      Timeout: 5
       Role: !GetAtt DestroyElbsLambdaExecutionRole.Arn
   PermissionForDestroyElbLambda:
-    Type: "AWS::Lambda::Permission"
+    Type: AWS::Lambda::Permission
     DependsOn:
       - DestroyElbsLambda
     Properties:
       FunctionName: !GetAtt DestroyElbsLambda.Arn
-      Action: "lambda:InvokeFunction"
-      Principal: "lambda.amazonaws.com"
+      Action: lambda:InvokeFunction
+      Principal: lambda.amazonaws.com
   DestroyElbsLambdaExecutionRole:
-    Type: "AWS::IAM::Role"
+    Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
-        Version: "2012-10-17"
+        Version: 2012-10-17
         Statement:
-          - Effect: "Allow"
+          - Effect: Allow
             Principal:
               Service:
                 - lambda.amazonaws.com
-            Action: "sts:AssumeRole"
+            Action: sts:AssumeRole
       Path: "/"
       Policies:
-        - PolicyName: "lambda_policy"
+        - PolicyName: lambda_policy
           PolicyDocument:
-            Version: "2012-10-17"
+            Version: 2012-10-17
             Statement:
-              - Effect: "Allow"
+              - Effect: Allow
                 Action:
-                  - "logs:CreateLogGroup"
-                  - "logs:CreateLogStream"
-                  - "logs:PutLogEvents"
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
                 Resource: "arn:aws:logs:*:*:*"
-              - Effect: "Allow"
+              - Effect: Allow
                 Action:
-                  - "elasticloadbalancing:*"
-                  - "ec2:De*"
-                  - "ec2:Dis*"
-                  - "ec2:Re*"
+                  - elasticloadbalancing:*
+                  - ec2:De*
+                  - ec2:Dis
+                  - ec2:Re*
                 Resource: "*"

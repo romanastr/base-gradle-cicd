@@ -1,12 +1,12 @@
-- name: Create a CodeBuild trigger role
+- name: "Create a CodeBuild trigger role"
   cloudformation:
-    stack_name: "CodeBuild-trigger-role"
-    state: "present"
+    stack_name: CodeBuild-trigger-role
+    state: present
     region: "{{aws_region}}"
     template_body: "{{lookup('template', 'pr-codebuild-role-template.yml')}}"
   register: output
-- name: Register role ARN
+- name: "Register role ARN"
   set_fact:
     codebuild_role_arn: "{{output.stack_outputs.CodeBuildRoleARN}}"
-- name: Output role ARN
+- name: "Output role ARN"
   debug: msg="CodeBuild role ARN = {{ codebuild_role_arn }}"

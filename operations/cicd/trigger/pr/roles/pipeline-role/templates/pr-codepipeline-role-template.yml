@@ -2,7 +2,7 @@ AWSTemplateFormatVersion: 2010-09-09
 Description: "CodePipeline project for loading code from GitHub to S3 on PR"
 Resources:
   CodePipelineRole:
-    Type: "AWS::IAM::Role"
+    Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
         Statement:
@@ -11,7 +11,7 @@ Resources:
             Principal:
               Service: codepipeline.amazonaws.com
   CodePipelinePrPolicy:
-    Type: "AWS::IAM::Policy"
+    Type: AWS::IAM::Policy
     Properties:
       PolicyName: !Sub ${AWS::StackName}-CodePipelinePolicy
       PolicyDocument:
@@ -24,7 +24,7 @@ Resources:
               - codebuild:*
             Resource: "*"
       Roles:
-        - !Ref "CodePipelineRole"
+        - !Ref CodePipelineRole
 Outputs:
   CodePipelineRoleARN:
     Description: "ARN of CodePipeline Role"

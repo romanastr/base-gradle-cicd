@@ -1,12 +1,12 @@
 - name: "Create EKS cluster for CI/CD"
   cloudformation:
     stack_name: "{{eks_cache_cluster_stack_name}}"
-    state: "present"
+    state: present
     region: "{{aws_region}}"
     template_body: "{{lookup('template', 'eks-cache-cluster.yml')}}"
   register: output
-- name: Register VPC id
+- name: "Register VPC id"
   set_fact:
     eks_cache_cluster_vpc_id: "{{output.stack_outputs.VPC}}"
-- name: Print VPC id
+- name: "Print VPC id"
   debug: msg="EKS cache cluster VPC id = {{ eks_cache_cluster_vpc_id }}"

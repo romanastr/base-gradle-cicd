@@ -1,4 +1,3 @@
 - name: "Upload Cache Node load balancer URL to SSM"
   shell: |
-    aws ssm delete-parameter --name "{{cache_node_host_ssm_parameter}}"
-    aws ssm put-parameter --name "{{cache_node_host_ssm_parameter}}" --type "String" --value "{{cache_node_url}}"
+    aws ssm put-parameter --name "{{cache_node_host_ssm_parameter}}" --type String --value "{{cache_node_url}}" --overwrite
