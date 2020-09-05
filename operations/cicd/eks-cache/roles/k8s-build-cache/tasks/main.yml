@@ -13,6 +13,7 @@
 - name: "Deploy build cache node"
   k8s:
     definition: "{{ lookup('template', 'build-cache-node.yml') }}"
+    namespace: "{{k8s_cache_cluster_namespace}}"
 - name: "Get the Cache Node load balancer URL"
   k8s_info:
     api_version: v1

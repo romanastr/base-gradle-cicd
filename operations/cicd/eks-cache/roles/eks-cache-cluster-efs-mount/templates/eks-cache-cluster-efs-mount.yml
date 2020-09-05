@@ -9,20 +9,10 @@ Resources:
         - TransitionToIA: AFTER_30_DAYS
       PerformanceMode: generalPurpose
       ThroughputMode: bursting
-  EFSSecurityGroup:
-    Type: AWS::EC2::SecurityGroup
+  AccessPointResource:
+    Type: AWS::EFS::AccessPoint
     Properties:
-      GroupDescription: "Security group for EFS"
-      VpcId: "{{eks_cache_cluster_vpc_id}}"
-  EFSSecurityGroupIngress:
-    Type: AWS::EC2::SecurityGroupIngress
-    Properties:
-      Description: Allow communication on all ports
-      FromPort: 0
-      GroupId: !GetAtt EFSSecurityGroup.GroupId
-      IpProtocol: -1
-      CidrIp: 0.0.0.0/0
-      ToPort: 65535
+      FileSystemId: !Ref FileSystemResource
   MountTargetResource1:
     Type: AWS::EFS::MountTarget
     Properties:
@@ -37,10 +27,20 @@ Resources:
       SubnetId: !ImportValue "{{eks_cache_cluster_stack_name}}::PrivateSubnet2"
       SecurityGroups:
         - !Ref EFSSecurityGroup
-  AccessPointResource:
-    Type: AWS::EFS::AccessPoint
+  EFSSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
     Properties:
-      FileSystemId: !Ref FileSystemResource
+      GroupDescription: "Security group for EFS"
+      VpcId: "{{eks_cache_cluster_vpc_id}}"
+  EFSSecurityGroupIngress:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      Description: Allow communication on all ports
+      FromPort: 0
+      GroupId: !GetAtt EFSSecurityGroup.GroupId
+      IpProtocol: -1
+      CidrIp: 0.0.0.0/0
+      ToPort: 65535
 Outputs:
   EFSMountId:
     Value: !Ref FileSystemResource
