@@ -1,14 +1,6 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: "EKS Cluster for CI/CD"
 Resources:
-  ClusterSharedNodeSecurityGroup:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupDescription: "Communication between all nodes in the cluster"
-      Tags:
-        - Key: Name
-          Value: !Sub ${AWS::StackName}/ClusterSharedNodeSecurityGroup
-      VpcId: !Ref VPC
   ControlPlane:
     Type: AWS::EKS::Cluster
     Properties:
@@ -23,41 +15,61 @@ Resources:
           - !Ref SubnetPrivateUSEAST1F
       RoleArn: !GetAtt ServiceRole.Arn
       Version: "{{eks_cache_cluster_kubernetes_version}}"
-  ControlPlaneSecurityGroup:
-    Type: AWS::EC2::SecurityGroup
+  VPC:
+    Type: AWS::EC2::VPC
     Properties:
-      GroupDescription: "Communication between the control plane and worker nodegroups"
+      CidrBlock: "{{eks_cache_cluster_cidr_block}}"
+      EnableDnsHostnames: true
+      EnableDnsSupport: true
       Tags:
         - Key: Name
-          Value: !Sub ${AWS::StackName}/ControlPlaneSecurityGroup
+          Value: !Sub ${AWS::StackName}/VPC
+  SubnetPublicUSEAST1D:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: us-east-1d
+      CidrBlock: !Select [ 0, !Cidr [ !GetAtt VPC.CidrBlock, 4, 5 ]]
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: kubernetes.io/role/elb
+          Value: 1
+        - Key: Name
+          Value: !Sub ${AWS::StackName}/SubnetPublicUSEAST1D
       VpcId: !Ref VPC
-  IngressDefaultClusterToNodeSG:
-    Type: AWS::EC2::SecurityGroupIngress
+  SubnetPublicUSEAST1F:
+    Type: AWS::EC2::Subnet
     Properties:
-      Description: "Allow managed and unmanaged nodes to communicate with each other (all ports)"
-      FromPort: 0
-      GroupId: !Ref ClusterSharedNodeSecurityGroup
-      IpProtocol: -1
-      SourceSecurityGroupId: !GetAtt ControlPlane.ClusterSecurityGroupId
-      ToPort: 65535
-  IngressInterNodeGroupSG:
-    Type: AWS::EC2::SecurityGroupIngress
+      AvailabilityZone: us-east-1f
+      CidrBlock: !Select [ 1, !Cidr [ !GetAtt VPC.CidrBlock, 4, 5 ]]
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: kubernetes.io/role/elb
+          Value: 1
+        - Key: Name
+          Value: !Sub ${AWS::StackName}/SubnetPublicUSEAST1F
+      VpcId: !Ref VPC
+  SubnetPrivateUSEAST1D:
+    Type: AWS::EC2::Subnet
     Properties:
-      Description: "Allow nodes to communicate with each other (all ports)"
-      FromPort: 0
-      GroupId: !Ref ClusterSharedNodeSecurityGroup
-      IpProtocol: -1
-      SourceSecurityGroupId: !Ref ClusterSharedNodeSecurityGroup
-      ToPort: 65535
-  IngressNodeToDefaultClusterSG:
-    Type: AWS::EC2::SecurityGroupIngress
+      AvailabilityZone: us-east-1d
+      CidrBlock: !Select [ 2, !Cidr [ !GetAtt VPC.CidrBlock, 4, 5 ]]
+      Tags:
+        - Key: kubernetes.io/role/internal-elb
+          Value: 1
+        - Key: Name
+          Value: !Sub ${AWS::StackName}/SubnetPrivateUSEAST1D
+      VpcId: !Ref VPC
+  SubnetPrivateUSEAST1F:
+    Type: AWS::EC2::Subnet
     Properties:
-      Description: "Allow unmanaged nodes to communicate with control plane (all ports)"
-      FromPort: 0
-      GroupId: !GetAtt ControlPlane.ClusterSecurityGroupId
-      IpProtocol: -1
-      SourceSecurityGroupId: !Ref ClusterSharedNodeSecurityGroup
-      ToPort: 65535
+      AvailabilityZone: us-east-1f
+      CidrBlock: !Select [ 3, !Cidr [ !GetAtt VPC.CidrBlock, 4, 5 ]]
+      Tags:
+        - Key: kubernetes.io/role/internal-elb
+          Value: 1
+        - Key: Name
+          Value: !Sub ${AWS::StackName}/SubnetPrivateUSEAST1F
+      VpcId: !Ref VPC
   InternetGateway:
     Type: AWS::EC2::InternetGateway
     Properties:
@@ -88,6 +100,14 @@ Resources:
       DestinationCidrBlock: 0.0.0.0/0
       NatGatewayId: !Ref NATGateway
       RouteTableId: !Ref PrivateRouteTableUSEAST1F
+  ControlPlaneSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: "Communication between the control plane and worker nodegroups"
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName}/ControlPlaneSecurityGroup
+      VpcId: !Ref VPC
   PolicyCloudWatchMetrics:
     Type: AWS::IAM::Policy
     Properties:
@@ -180,61 +200,6 @@ Resources:
         Version: 2012-10-17
       ManagedPolicyArns:
         - !Sub arn:${AWS::Partition}:iam::aws:policy/AmazonEKSClusterPolicy
-  VPC:
-    Type: AWS::EC2::VPC
-    Properties:
-      CidrBlock: "{{eks_cache_cluster_cidr_block}}"
-      EnableDnsHostnames: true
-      EnableDnsSupport: true
-      Tags:
-        - Key: Name
-          Value: !Sub ${AWS::StackName}/VPC
-  SubnetPublicUSEAST1D:
-    Type: AWS::EC2::Subnet
-    Properties:
-      AvailabilityZone: us-east-1d
-      CidrBlock: !Select [ 0, !Cidr [ !GetAtt VPC.CidrBlock, 4, 5 ]]
-      MapPublicIpOnLaunch: true
-      Tags:
-        - Key: kubernetes.io/role/elb
-          Value: 1
-        - Key: Name
-          Value: !Sub ${AWS::StackName}/SubnetPublicUSEAST1D
-      VpcId: !Ref VPC
-  SubnetPublicUSEAST1F:
-    Type: AWS::EC2::Subnet
-    Properties:
-      AvailabilityZone: us-east-1f
-      CidrBlock: !Select [ 1, !Cidr [ !GetAtt VPC.CidrBlock, 4, 5 ]]
-      MapPublicIpOnLaunch: true
-      Tags:
-        - Key: kubernetes.io/role/elb
-          Value: 1
-        - Key: Name
-          Value: !Sub ${AWS::StackName}/SubnetPublicUSEAST1F
-      VpcId: !Ref VPC
-  SubnetPrivateUSEAST1D:
-    Type: AWS::EC2::Subnet
-    Properties:
-      AvailabilityZone: us-east-1d
-      CidrBlock: !Select [ 2, !Cidr [ !GetAtt VPC.CidrBlock, 4, 5 ]]
-      Tags:
-        - Key: kubernetes.io/role/internal-elb
-          Value: 1
-        - Key: Name
-          Value: !Sub ${AWS::StackName}/SubnetPrivateUSEAST1D
-      VpcId: !Ref VPC
-  SubnetPrivateUSEAST1F:
-    Type: AWS::EC2::Subnet
-    Properties:
-      AvailabilityZone: us-east-1f
-      CidrBlock: !Select [ 3, !Cidr [ !GetAtt VPC.CidrBlock, 4, 5 ]]
-      Tags:
-        - Key: kubernetes.io/role/internal-elb
-          Value: 1
-        - Key: Name
-          Value: !Sub ${AWS::StackName}/SubnetPrivateUSEAST1F
-      VpcId: !Ref VPC
   VPCGatewayAttachment:
     Type: AWS::EC2::VPCGatewayAttachment
     Properties:
@@ -264,6 +229,41 @@ Resources:
         alpha.eksctl.io/nodegroup-type: managed
     DependsOn:
       - ControlPlane
+  ClusterSharedNodeSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: "Communication between all nodes in the cluster"
+      Tags:
+        - Key: Name
+          Value: !Sub ${AWS::StackName}/ClusterSharedNodeSecurityGroup
+      VpcId: !Ref VPC
+  IngressDefaultClusterToNodeSG:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      Description: "Allow managed and unmanaged nodes to communicate with each other (all ports)"
+      FromPort: 0
+      GroupId: !Ref ClusterSharedNodeSecurityGroup
+      IpProtocol: -1
+      SourceSecurityGroupId: !GetAtt ControlPlane.ClusterSecurityGroupId
+      ToPort: 65535
+  IngressInterNodeGroupSG:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      Description: "Allow nodes to communicate with each other (all ports)"
+      FromPort: 0
+      GroupId: !Ref ClusterSharedNodeSecurityGroup
+      IpProtocol: -1
+      SourceSecurityGroupId: !Ref ClusterSharedNodeSecurityGroup
+      ToPort: 65535
+  IngressNodeToDefaultClusterSG:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      Description: "Allow unmanaged nodes to communicate with control plane (all ports)"
+      FromPort: 0
+      GroupId: !GetAtt ControlPlane.ClusterSecurityGroupId
+      IpProtocol: -1
+      SourceSecurityGroupId: !Ref ClusterSharedNodeSecurityGroup
+      ToPort: 65535
   NodeInstanceRole:
     Type: AWS::IAM::Role
     Properties:
