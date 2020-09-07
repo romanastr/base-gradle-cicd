@@ -54,6 +54,19 @@ Resources:
         Location: !Ref CodePipelineArtifactStoreBucket
   CodePipelineArtifactStoreBucket:
     Type: AWS::S3::Bucket
+    Properties:
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      LifecycleConfiguration:
+        Rules:
+          - Id: TransitionRule
+            Status: Enabled
+            ExpirationInDays: "{{audit_expiration_days}}"
+            Transitions:
+              - TransitionInDays: "{{audit_infrequent_transition_days}}"
+                StorageClass: STANDARD_IA
   CodeBuildBuild:
     Type: AWS::CodeBuild::Project
     Properties:
@@ -71,11 +84,20 @@ Resources:
           - Name: CI
             Value: true
             Type: PLAINTEXT
-      Name: "{{project_name}}-CodeBuild-PR-Main"
+      Name: "{{project_name}}-{{codebuild_projectname_main}}"
       ServiceRole: "{{codebuild_role_arn}}"
       Source:
         Type: CODEPIPELINE
         BuildSpec: operations/cicd/trigger/pr/roles/pipeline/files/buildspec-build.yml
+      LogsConfig:
+        CloudWatchLogs:
+          GroupName: "/aws/codebuild/{{project_name}}-{{codebuild_projectname_main}}"
+          Status: ENABLED
+  LogsLogGroupMain:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: "/aws/codebuild/{{project_name}}-{{codebuild_projectname_main}}"
+      RetentionInDays: "{{audit_expiration_days}}"
   CodeBuildStatus:
     Type: AWS::CodeBuild::Project
     Properties:
@@ -90,8 +112,17 @@ Resources:
           - Name: GITHUB_TOKEN
             Value: "{{github_token_ssm_parameter}}"
             Type: PARAMETER_STORE
-      Name: "{{project_name}}-CodeBuild-PR-Status"
+      Name: "{{project_name}}-{{codebuild_projectname_status}}"
       ServiceRole: "{{codebuild_role_arn}}"
       Source:
         Type: CODEPIPELINE
         BuildSpec: operations/cicd/trigger/pr/roles/pipeline/files/buildspec-build-status.yml
+      LogsConfig:
+        CloudWatchLogs:
+          GroupName: "/aws/codebuild/{{project_name}}-{{codebuild_projectname_status}}"
+          Status: ENABLED
+  LogsLogGroupStatus:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: "/aws/codebuild/{{project_name}}-{{codebuild_projectname_status}}"
+      RetentionInDays: "{{audit_expiration_days}}"

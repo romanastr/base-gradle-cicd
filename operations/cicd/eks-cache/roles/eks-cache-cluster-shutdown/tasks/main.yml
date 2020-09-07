@@ -14,4 +14,4 @@
       OperationList:
         - "cfn:{{eks_cache_cluster_stack_name}}-EFS-Mount"
         - "cfn:{{eks_cache_cluster_stack_name}}"
-        - "lambda:{{eks_lambda_destroy_lbs_name}}"
+        - "lambda:{{lambda_cleanup_name}}"
