@@ -6,7 +6,7 @@ Resources:
     DependsOn:
       - DestroyElbsLambdaExecutionRole
     Properties:
-      FunctionName: "{{eks_lambda_destroy_lbs_name}}"
+      FunctionName: "{{lambda_cleanup_name}}"
       Code:
         ZipFile: |
           import boto3
@@ -51,6 +51,11 @@ Resources:
       Runtime: python3.7
       Timeout: 5
       Role: !GetAtt DestroyElbsLambdaExecutionRole.Arn
+  LogsLogGroupCleanup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: "/aws/lambda/{{lambda_cleanup_name}}"
+      RetentionInDays: "{{audit_expiration_days}}"
   PermissionForDestroyElbLambda:
     Type: AWS::Lambda::Permission
     DependsOn:
@@ -78,7 +83,6 @@ Resources:
             Statement:
               - Effect: Allow
                 Action:
-                  - logs:CreateLogGroup
                   - logs:CreateLogStream
                   - logs:PutLogEvents
                 Resource: "arn:aws:logs:*:*:*"

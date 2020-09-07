@@ -16,7 +16,7 @@ Resources:
         ComputeType: BUILD_GENERAL1_SMALL
         Image: aws/codebuild/standard:4.0
         Type: LINUX_CONTAINER
-      Name: "{{project_name}}-CodeBuild-PR-trigger"
+      Name: "{{project_name}}-{{codebuild_projectname_trigger}}"
       ServiceRole: "{{codebuild_role_arn}}"
       Source:
         ReportBuildStatus: true
@@ -39,6 +39,10 @@ Resources:
             - Type: EVENT
               Pattern: PULL_REQUEST_CREATED, PULL_REQUEST_UPDATED, PULL_REQUEST_REOPENED
         Webhook: true
+      LogsConfig:
+        CloudWatchLogs:
+          GroupName: "/aws/codebuild/{{project_name}}-{{codebuild_projectname_trigger}}"
+          Status: ENABLED
   S3OutputBucket:
     Type: AWS::S3::Bucket
     Properties:
@@ -47,5 +51,24 @@ Resources:
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault:
               SSEAlgorithm: AES256
+      LifecycleConfiguration:
+        Rules:
+          - Id: TransitionRule
+            Status: Enabled
+            ExpirationInDays: "{{audit_expiration_days}}"
+            Transitions:
+              - TransitionInDays: "{{audit_infrequent_transition_days}}"
+                StorageClass: STANDARD_IA
+          - Id: NoncurrentVersionTransitionRule
+            Status: Enabled
+            NoncurrentVersionExpirationInDays: "{{audit_expiration_days}}"
+            NoncurrentVersionTransitions:
+              - TransitionInDays: "{{audit_infrequent_transition_days}}"
+                StorageClass: STANDARD_IA
       VersioningConfiguration:
         Status: Enabled
+  LogsLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: "/aws/codebuild/{{project_name}}-{{codebuild_projectname_trigger}}"
+      RetentionInDays: "{{audit_expiration_days}}"

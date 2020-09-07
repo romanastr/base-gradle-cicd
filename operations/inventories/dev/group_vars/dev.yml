@@ -2,6 +2,13 @@ aws_region: us-east-1
 project_name: Gradle-CICD
 source_artifact_bucket_name: pr-codebuild-bucket
 source_artifact_key: Sources.zip
+codebuild_projectname_main: CodeBuild-PR-Main
+codebuild_projectname_status: CodeBuild-PR-Status
+codebuild_projectname_trigger: CodeBuild-PR-trigger
+lambda_delete_name: DeleteCFNStacksLambda
+lambda_cleanup_name: LambdaDestroyElbs
+audit_infrequent_transition_days: 30
+audit_expiration_days: 90
 github_token: !vault |
   $ANSIBLE_VAULT;1.1;AES256
   61666464343031363634623762333065316334363165323134626134313261643061346433643730
@@ -16,6 +23,5 @@ eks_cache_cluster_name: cache-cluster
 eks_cache_cluster_stack_name: EKS-Cluster-CICD
 eks_cache_cluster_kubernetes_version: 1.17
 eks_cache_cluster_cidr_block: 192.168.100.0/25
-eks_lambda_destroy_lbs_name: LambdaDestroyElbs
 k8s_cache_cluster_namespace: build-cache
 k8s_cache_cluster_volume_name: build-cache-mount

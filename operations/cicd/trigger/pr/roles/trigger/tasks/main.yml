@@ -1,6 +1,6 @@
 - name: "Create a CodeBuild trigger project"
   cloudformation:
-    stack_name: CodeBuild-PR-trigger
+    stack_name: "{{codebuild_projectname_trigger}}"
     state: present
     region: "{{aws_region}}"
     template_body: "{{lookup('template', 'pr-codebuild-template.yml')}}"
