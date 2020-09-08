@@ -36,11 +36,11 @@ Resources:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
       Description: Allow communication on all ports
-      FromPort: 0
       GroupId: !GetAtt EFSSecurityGroup.GroupId
-      IpProtocol: -1
+      IpProtocol: tcp
       CidrIp: 0.0.0.0/0
-      ToPort: 65535
+      FromPort: 2049
+      ToPort: 2049
 Outputs:
   EFSMountId:
     Value: !Ref FileSystemResource

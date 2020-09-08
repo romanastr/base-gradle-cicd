@@ -4,6 +4,10 @@ Resources:
   ControlPlane:
     Type: AWS::EKS::Cluster
     Properties:
+      EncryptionConfig:
+        - Provider: !GetAtt KmsSecretsKey.Arn
+          Resources:
+            - secrets
       Name: "{{eks_cache_cluster_name}}"
       ResourcesVpcConfig:
         SecurityGroupIds:
@@ -15,6 +19,8 @@ Resources:
           - !Ref SubnetPrivateUSEAST1F
       RoleArn: !GetAtt ServiceRole.Arn
       Version: "{{eks_cache_cluster_kubernetes_version}}"
+    DependsOn:
+      - KmsSecretsKey
   VPC:
     Type: AWS::EC2::VPC
     Properties:
@@ -200,6 +206,34 @@ Resources:
         Version: 2012-10-17
       ManagedPolicyArns:
         - !Sub arn:${AWS::Partition}:iam::aws:policy/AmazonEKSClusterPolicy
+  KmsSecretsKey:
+    Type: AWS::KMS::Key
+    Properties:
+      Description: "KMS key for EKS secrets encryption"
+      Enabled: true
+      EnableKeyRotation: true
+      KeyPolicy:
+        Version: 2012-10-17
+        Id: eks-key-policy
+        Statement:
+          - Sid: "Enable IAM user permissions"
+            Effect: Allow
+            Principal:
+              AWS: arn:aws:iam::${AWS::AccountId}:root
+            Action: kms:*
+            Resource: "*"
+          - Sid: "Allow use of the Key"
+            Effect: Allow
+            Principal:
+              AWS: "*"
+            Condition: {"StringEquals": {"kms:CallerAccount": "${AWS::AccountId}", "kms:ViaService": "eks.amazonaws.com"}}
+            Action:
+              - kms:Des*
+              - kms:*crypt*
+              - kms:Generate*
+              - kms:List*
+              - kms:Get*
+            Resource: "*"
   VPCGatewayAttachment:
     Type: AWS::EC2::VPCGatewayAttachment
     Properties:
@@ -243,7 +277,7 @@ Resources:
       Description: "Allow managed and unmanaged nodes to communicate with each other (all ports)"
       FromPort: 0
       GroupId: !Ref ClusterSharedNodeSecurityGroup
-      IpProtocol: -1
+      IpProtocol: tcp
       SourceSecurityGroupId: !GetAtt ControlPlane.ClusterSecurityGroupId
       ToPort: 65535
   IngressInterNodeGroupSG:
@@ -252,7 +286,7 @@ Resources:
       Description: "Allow nodes to communicate with each other (all ports)"
       FromPort: 0
       GroupId: !Ref ClusterSharedNodeSecurityGroup
-      IpProtocol: -1
+      IpProtocol: tcp
       SourceSecurityGroupId: !Ref ClusterSharedNodeSecurityGroup
       ToPort: 65535
   IngressNodeToDefaultClusterSG:
@@ -261,7 +295,7 @@ Resources:
       Description: "Allow unmanaged nodes to communicate with control plane (all ports)"
       FromPort: 0
       GroupId: !GetAtt ControlPlane.ClusterSecurityGroupId
-      IpProtocol: -1
+      IpProtocol: tcp
       SourceSecurityGroupId: !Ref ClusterSharedNodeSecurityGroup
       ToPort: 65535
   NodeInstanceRole:
