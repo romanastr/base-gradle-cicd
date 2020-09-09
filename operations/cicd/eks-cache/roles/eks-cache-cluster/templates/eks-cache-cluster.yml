@@ -5,7 +5,8 @@ Resources:
     Type: AWS::EKS::Cluster
     Properties:
       EncryptionConfig:
-        - Provider: !GetAtt KmsSecretsKey.Arn
+        - Provider:
+            KeyArn: !GetAtt KmsSecretsKey.Arn
           Resources:
             - secrets
       Name: "{{eks_cache_cluster_name}}"
@@ -219,14 +220,14 @@ Resources:
           - Sid: "Enable IAM user permissions"
             Effect: Allow
             Principal:
-              AWS: arn:aws:iam::${AWS::AccountId}:root
-            Action: kms:*
+              AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
+            Action: "kms:*"
             Resource: "*"
           - Sid: "Allow use of the Key"
             Effect: Allow
             Principal:
               AWS: "*"
-            Condition: {"StringEquals": {"kms:CallerAccount": "${AWS::AccountId}", "kms:ViaService": "eks.amazonaws.com"}}
+            Condition: {"StringEquals": {"kms:CallerAccount": !Sub "${AWS::AccountId}"}}
             Action:
               - kms:Des*
               - kms:*crypt*
