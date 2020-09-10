@@ -112,4 +112,5 @@ Resources:
                   - iam:De*
                   - eks:De*
                   - elasticfilesystem:De*
+                  - kms:ScheduleKeyDeletion
                 Resource: "*"

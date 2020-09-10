@@ -213,6 +213,7 @@ Resources:
       Description: "KMS key for EKS secrets encryption"
       Enabled: true
       EnableKeyRotation: true
+      PendingWindowInDays: 7
       KeyPolicy:
         Version: 2012-10-17
         Id: eks-key-policy
@@ -312,8 +313,7 @@ Resources:
                 - ec2.amazonaws.com
         Version: 2012-10-17
       ManagedPolicyArns:
-        - !Sub >-
-          arn:${AWS::Partition}:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
+        - !Sub arn:${AWS::Partition}:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
         - !Sub arn:${AWS::Partition}:iam::aws:policy/AmazonEKSWorkerNodePolicy
         - !Sub arn:${AWS::Partition}:iam::aws:policy/AmazonEKS_CNI_Policy
       Path: /
