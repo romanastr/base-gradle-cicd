@@ -250,10 +250,10 @@ Resources:
         MaxSize: 2
         DesiredSize: 2
       Subnets:
-        - !Ref SubnetPublicUSEAST1D
-        - !Ref SubnetPublicUSEAST1F
+        - !Ref SubnetPrivateUSEAST1D
+        - !Ref SubnetPrivateUSEAST1F
       InstanceTypes:
-        - t3.small
+        - t3a.small
       AmiType: AL2_x86_64
       NodeRole: !GetAtt NodeInstanceRole.Arn
       Labels:
