@@ -1,10 +1,14 @@
 aws_region: us-east-1
+aws_az_1: us-east-1d
+aws_az_2: us-east-1f
 project_name: Gradle-CICD
 source_artifact_bucket_name: pr-codebuild-bucket
 source_artifact_key: Sources.zip
 codebuild_projectname_main: CodeBuild-PR-Main
 codebuild_projectname_status: CodeBuild-PR-Status
 codebuild_projectname_trigger: CodeBuild-PR-trigger
+codebuild_compute_type: BUILD_GENERAL1_SMALL
+codebuild_image: aws/codebuild/standard:4.0
 lambda_delete_name: DeleteCFNStacksLambda
 lambda_cleanup_name: LambdaDestroyElbs
 audit_infrequent_transition_days: 30
