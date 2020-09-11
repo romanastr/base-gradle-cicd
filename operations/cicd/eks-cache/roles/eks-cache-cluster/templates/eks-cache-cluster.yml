@@ -14,10 +14,10 @@ Resources:
         SecurityGroupIds:
           - !Ref ControlPlaneSecurityGroup
         SubnetIds:
-          - !Ref SubnetPublicUSEAST1D
-          - !Ref SubnetPublicUSEAST1F
-          - !Ref SubnetPrivateUSEAST1D
-          - !Ref SubnetPrivateUSEAST1F
+          - !Ref PublicSubnet1
+          - !Ref PublicSubnet2
+          - !Ref PrivateSubnet1
+          - !Ref PrivateSubnet2
       RoleArn: !GetAtt ServiceRole.Arn
       Version: "{{eks_cache_cluster_kubernetes_version}}"
     DependsOn:
@@ -31,51 +31,51 @@ Resources:
       Tags:
         - Key: Name
           Value: !Sub ${AWS::StackName}/VPC
-  SubnetPublicUSEAST1D:
+  PublicSubnet1:
     Type: AWS::EC2::Subnet
     Properties:
-      AvailabilityZone: us-east-1d
+      AvailabilityZone: "{{aws_az_1}}"
       CidrBlock: !Select [ 0, !Cidr [ !GetAtt VPC.CidrBlock, 4, 5 ]]
       MapPublicIpOnLaunch: true
       Tags:
         - Key: kubernetes.io/role/elb
           Value: 1
         - Key: Name
-          Value: !Sub ${AWS::StackName}/SubnetPublicUSEAST1D
+          Value: !Sub ${AWS::StackName}/PublicSubnet1
       VpcId: !Ref VPC
-  SubnetPublicUSEAST1F:
+  PublicSubnet2:
     Type: AWS::EC2::Subnet
     Properties:
-      AvailabilityZone: us-east-1f
+      AvailabilityZone: "{{aws_az_2}}"
       CidrBlock: !Select [ 1, !Cidr [ !GetAtt VPC.CidrBlock, 4, 5 ]]
       MapPublicIpOnLaunch: true
       Tags:
         - Key: kubernetes.io/role/elb
           Value: 1
         - Key: Name
-          Value: !Sub ${AWS::StackName}/SubnetPublicUSEAST1F
+          Value: !Sub ${AWS::StackName}/PublicSubnet2
       VpcId: !Ref VPC
-  SubnetPrivateUSEAST1D:
+  PrivateSubnet1:
     Type: AWS::EC2::Subnet
     Properties:
-      AvailabilityZone: us-east-1d
+      AvailabilityZone: "{{aws_az_1}}"
       CidrBlock: !Select [ 2, !Cidr [ !GetAtt VPC.CidrBlock, 4, 5 ]]
       Tags:
         - Key: kubernetes.io/role/internal-elb
           Value: 1
         - Key: Name
-          Value: !Sub ${AWS::StackName}/SubnetPrivateUSEAST1D
+          Value: !Sub ${AWS::StackName}/PrivateSubnet1
       VpcId: !Ref VPC
-  SubnetPrivateUSEAST1F:
+  PrivateSubnet2:
     Type: AWS::EC2::Subnet
     Properties:
-      AvailabilityZone: us-east-1f
+      AvailabilityZone: "{{aws_az_2}}"
       CidrBlock: !Select [ 3, !Cidr [ !GetAtt VPC.CidrBlock, 4, 5 ]]
       Tags:
         - Key: kubernetes.io/role/internal-elb
           Value: 1
         - Key: Name
-          Value: !Sub ${AWS::StackName}/SubnetPrivateUSEAST1F
+          Value: !Sub ${AWS::StackName}/PrivateSubnet2
       VpcId: !Ref VPC
   InternetGateway:
     Type: AWS::EC2::InternetGateway
@@ -87,7 +87,7 @@ Resources:
     Type: AWS::EC2::NatGateway
     Properties:
       AllocationId: !GetAtt NATIP.AllocationId
-      SubnetId: !Ref SubnetPublicUSEAST1D
+      SubnetId: !Ref PublicSubnet1
       Tags:
         - Key: Name
           Value: !Sub ${AWS::StackName}/NATGateway
@@ -95,18 +95,18 @@ Resources:
     Type: AWS::EC2::EIP
     Properties:
       Domain: vpc
-  NATPrivateSubnetRouteUSEAST1D:
+  NATPrivateSubnetRoute1:
     Type: AWS::EC2::Route
     Properties:
       DestinationCidrBlock: 0.0.0.0/0
       NatGatewayId: !Ref NATGateway
-      RouteTableId: !Ref PrivateRouteTableUSEAST1D
-  NATPrivateSubnetRouteUSEAST1F:
+      RouteTableId: !Ref PrivateRouteTable1
+  NATPrivateSubnetRoute2:
     Type: AWS::EC2::Route
     Properties:
       DestinationCidrBlock: 0.0.0.0/0
       NatGatewayId: !Ref NATGateway
-      RouteTableId: !Ref PrivateRouteTableUSEAST1F
+      RouteTableId: !Ref PrivateRouteTable2
   ControlPlaneSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -143,19 +143,19 @@ Resources:
       PolicyName: !Sub ${AWS::StackName}-PolicyNLB
       Roles:
         - !Ref ServiceRole
-  PrivateRouteTableUSEAST1D:
+  PrivateRouteTable1:
     Type: AWS::EC2::RouteTable
     Properties:
       Tags:
         - Key: Name
-          Value: !Sub ${AWS::StackName}/PrivateRouteTableUSEAST1D
+          Value: !Sub ${AWS::StackName}/PrivateRouteTable1
       VpcId: !Ref VPC
-  PrivateRouteTableUSEAST1F:
+  PrivateRouteTable2:
     Type: AWS::EC2::RouteTable
     Properties:
       Tags:
         - Key: Name
-          Value: !Sub ${AWS::StackName}/PrivateRouteTableUSEAST1F
+          Value: !Sub ${AWS::StackName}/PrivateRouteTable2
       VpcId: !Ref VPC
   PublicRouteTable:
     Type: AWS::EC2::RouteTable
@@ -172,26 +172,26 @@ Resources:
       RouteTableId: !Ref PublicRouteTable
     DependsOn:
       - VPCGatewayAttachment
-  RouteTableAssociationPrivateUSEAST1D:
+  RouteTableAssociationPrivate1:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      RouteTableId: !Ref PrivateRouteTableUSEAST1D
-      SubnetId: !Ref SubnetPrivateUSEAST1D
-  RouteTableAssociationPrivateUSEAST1F:
+      RouteTableId: !Ref PrivateRouteTable1
+      SubnetId: !Ref PrivateSubnet1
+  RouteTableAssociationPrivate2:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      RouteTableId: !Ref PrivateRouteTableUSEAST1F
-      SubnetId: !Ref SubnetPrivateUSEAST1F
-  RouteTableAssociationPublicUSEAST1D:
-    Type: AWS::EC2::SubnetRouteTableAssociation
-    Properties:
-      RouteTableId: !Ref PublicRouteTable
-      SubnetId: !Ref SubnetPublicUSEAST1D
-  RouteTableAssociationPublicUSEAST1F:
+      RouteTableId: !Ref PrivateRouteTable2
+      SubnetId: !Ref PrivateSubnet2
+  RouteTableAssociationPublic1:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       RouteTableId: !Ref PublicRouteTable
-      SubnetId: !Ref SubnetPublicUSEAST1F
+      SubnetId: !Ref PublicSubnet1
+  RouteTableAssociationPublic2:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      SubnetId: !Ref PublicSubnet2
   ServiceRole:
     Type: AWS::IAM::Role
     Properties:
@@ -251,8 +251,8 @@ Resources:
         MaxSize: 2
         DesiredSize: 2
       Subnets:
-        - !Ref SubnetPrivateUSEAST1D
-        - !Ref SubnetPrivateUSEAST1F
+        - !Ref PrivateSubnet1
+        - !Ref PrivateSubnet2
       InstanceTypes:
         - t3a.small
       AmiType: AL2_x86_64
@@ -321,11 +321,11 @@ Outputs:
   PrivateSubnet1:
     Export:
       Name: !Sub ${AWS::StackName}::PrivateSubnet1
-    Value: !Ref SubnetPrivateUSEAST1D
+    Value: !Ref PrivateSubnet1
   PrivateSubnet2:
     Export:
       Name: !Sub ${AWS::StackName}::PrivateSubnet2
-    Value: !Ref SubnetPrivateUSEAST1F
+    Value: !Ref PrivateSubnet2
   VPC:
     Export:
       Name: !Sub ${AWS::StackName}::VPC

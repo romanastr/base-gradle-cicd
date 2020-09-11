@@ -13,8 +13,8 @@ Resources:
         Type: S3
       Description: "PR trigger CodeBuild"
       Environment:
-        ComputeType: BUILD_GENERAL1_SMALL
-        Image: aws/codebuild/standard:4.0
+        ComputeType: "{{codebuild_compute_type}}"
+        Image: "{{codebuild_image}}"
         Type: LINUX_CONTAINER
       Name: "{{project_name}}-{{codebuild_projectname_trigger}}"
       ServiceRole: "{{codebuild_role_arn}}"
