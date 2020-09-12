@@ -5,13 +5,14 @@ phases:
   install:
     commands:
       - chmod +x gradlew
+      - export VAR=1
+  build:
+    commands:
       - |
         next() {
           source operations/cicd/trigger/pr/roles/pipeline/files/scripts.sh
-          "@$"
+          "$@"
         }
-  build:
-    commands:
       - printenv
       - next runGradle clean build -x test
   post_build:
