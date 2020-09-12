@@ -5,19 +5,19 @@ phases:
   install:
     commands:
       - chmod +x gradlew
-      - source operations/cicd/trigger/pr/roles/pipeline/files/scripts.sh
+      - |
+        next() {
+          source operations/cicd/trigger/pr/roles/pipeline/files/scripts.sh
+          "@$"
+        }
   build:
     commands:
       - printenv
-      - |
-        source operations/cicd/trigger/pr/roles/pipeline/files/scripts.sh
-        next clean build -x test
+      - next runGradle clean build -x test
   post_build:
     commands:
-      - |
-        source operations/cicd/trigger/pr/roles/pipeline/files/scripts.sh
-        next test
-        ifCI next jib
+      - next runGradle test
+      - next ifCI runGradle jib
 reports:
   GradleCICDReportGroup:
     files:
