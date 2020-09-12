@@ -6,13 +6,9 @@ phases:
     commands:
       - chmod +x gradlew
       - export VAR=1
+      - echo 'next() { source operations/cicd/trigger/pr/roles/pipeline/files/scripts.sh; "$@"; }' >> ~/.bashrc
   build:
     commands:
-      - |
-        next() {
-          source operations/cicd/trigger/pr/roles/pipeline/files/scripts.sh
-          "$@"
-        }
       - printenv
       - next runGradle clean build -x test
   post_build:
