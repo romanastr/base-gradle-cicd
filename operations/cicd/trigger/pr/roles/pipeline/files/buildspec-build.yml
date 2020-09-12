@@ -11,13 +11,13 @@ phases:
       - printenv
       - |
         source operations/cicd/trigger/pr/roles/pipeline/files/scripts.sh
-        next "clean build -x test"
+        next clean build -x test
   post_build:
     commands:
       - |
         source operations/cicd/trigger/pr/roles/pipeline/files/scripts.sh
-        next "test"
-        ifCI next "jib"
+        next test
+        ifCI next jib
 reports:
   GradleCICDReportGroup:
     files:
