@@ -5,16 +5,21 @@ phases:
   install:
     commands:
       - chmod +x gradlew
+      - |
+        next() {
+          if [[ $CODEBUILD_BUILD_SUCCEEDING = 1 ]]; then
+            echo "Executing $1"
+            `./gradlew --build-cache $1`
+          fi
+        }
   build:
     commands:
       - printenv
-      - ./gradlew --build-cache clean build -x test
+      - next "clean build -x test"
   post_build:
     commands:
-      - |
-        if [[ $CODEBUILD_BUILD_SUCCEEDING = 1 ]]; then
-          ./gradlew --build-cache test
-        fi
+      - next "test"
+      - next "jib"
 reports:
   GradleCICDReportGroup:
     files:

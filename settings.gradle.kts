@@ -1,11 +1,12 @@
 val cacheUrl = "http://" + System.getenv("BUILD_CACHE_HOST") + "/cache/"
-val isCiServer = System.getenv("CI") == "true"
+val isCiBuild = System.getenv("CI") == "true"
+val isPrBuild = System.getenv("PR") == "true"
 print("cacheUrl = " + cacheUrl + "\n")
-print("CI = " + isCiServer + "\n")
+print("CI = " + isCiBuild + "\n")
 buildCache {
     remote<HttpBuildCache> {
         url = uri(cacheUrl)
-        isPush = isCiServer
+        isPush = isCiBuild || isPrBuild
         isAllowInsecureProtocol = true
     }
 }
