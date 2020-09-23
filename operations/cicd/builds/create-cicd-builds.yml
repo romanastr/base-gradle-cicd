@@ -3,7 +3,7 @@
   hosts: localhost
   connection: local
   roles:
-    - pr-trigger-role
+    - codebuild-role
+    - codepipeline-role
     - pr-trigger
-    - pipeline-role
-    - pipeline
+    - pipelines

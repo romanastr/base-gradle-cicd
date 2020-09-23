@@ -4,7 +4,7 @@ env:
 phases:
   install:
     commands:
-      - echo -e '#!/bin/bash\n  source operations/cicd/builds/roles/pipeline/files/scripts.sh; "$@"' > /bin/next
+      - echo -e '#!/bin/bash\n  source operations/cicd/builds/roles/pipelines/files/scripts.sh; "$@"' > /bin/next
       - chmod +x gradlew
       - chmod +x /bin/next
   build:
