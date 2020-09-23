@@ -6,7 +6,7 @@ runGradle() {
 }
 
 ifCI() {
-  if [[ $CI = true ]]; then
+  if [[ $BUILD = CI ]]; then
     "$@"
   else
     echo Not a CI environment, will NOT run "$@"

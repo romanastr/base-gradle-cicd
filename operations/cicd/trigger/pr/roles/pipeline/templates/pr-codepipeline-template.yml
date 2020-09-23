@@ -81,8 +81,8 @@ Resources:
           - Name: BUILD_CACHE_HOST
             Value: "{{cache_node_host_ssm_parameter}}"
             Type: PARAMETER_STORE
-          - Name: CI
-            Value: true
+          - Name: BUILD
+            Value: PR
             Type: PLAINTEXT
       Name: "{{project_name}}-{{codebuild_projectname_main}}"
       ServiceRole: "{{codebuild_role_arn}}"

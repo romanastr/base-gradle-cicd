@@ -1,6 +1,6 @@
 val cacheUrl = "http://" + System.getenv("BUILD_CACHE_HOST") + "/cache/"
-val isCiBuild = System.getenv("CI") == "true"
-val isPrBuild = System.getenv("PR") == "true"
+val isCiBuild = System.getenv("BUILD") == "CI"
+val isPrBuild = System.getenv("BUILD") == "PR"
 print("cacheUrl = " + cacheUrl + "\n")
 print("CI = " + isCiBuild + "\n")
 buildCache {
