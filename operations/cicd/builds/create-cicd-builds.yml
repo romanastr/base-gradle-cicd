@@ -1,0 +1,9 @@
+---
+- name: "Create CodeBuild and CodePipeline projects for CI/CD"
+  hosts: localhost
+  connection: local
+  roles:
+    - pr-trigger-role
+    - pr-trigger
+    - pipeline-role
+    - pipeline

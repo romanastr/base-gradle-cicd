@@ -3,4 +3,4 @@
     stack_name: CodePipeline-PR
     state: present
     region: "{{aws_region}}"
-    template_body: "{{lookup('template', 'pr-codepipeline-template.yml')}}"
+    template_body: "{{lookup('template', 'build-codepipeline-template.yml')}}"

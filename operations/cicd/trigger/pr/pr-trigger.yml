@@ -1,9 +1,0 @@
----
-- name: "Create PR CodeBuild trigger playbook"
-  hosts: localhost
-  connection: local
-  roles:
-    - trigger-role
-    - trigger
-    - pipeline-role
-    - pipeline

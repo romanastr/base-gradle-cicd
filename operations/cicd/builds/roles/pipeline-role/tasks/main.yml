@@ -3,7 +3,7 @@
     stack_name: CodePipeline-role
     state: present
     region: "{{aws_region}}"
-    template_body: "{{lookup('template', 'pr-codepipeline-role-template.yml')}}"
+    template_body: "{{lookup('template', 'build-codepipeline-role-template.yml')}}"
   register: output
 - name: "Register role ARN"
   set_fact:
