@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: "CodePipeline project for loading code from GitHub to S3 on PR"
+Description: "IAM role for executing PR and CI CodePipeline builds"
 Resources:
   CodePipelineRole:
     Type: AWS::IAM::Role

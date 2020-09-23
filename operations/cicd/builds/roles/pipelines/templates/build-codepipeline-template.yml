@@ -88,7 +88,7 @@ Resources:
       ServiceRole: "{{codebuild_role_arn}}"
       Source:
         Type: CODEPIPELINE
-        BuildSpec: operations/cicd/trigger/pr/roles/pipeline/files/buildspec-build.yml
+        BuildSpec: operations/cicd/builds/roles/pipelines/files/buildspec-build.yml
       LogsConfig:
         CloudWatchLogs:
           GroupName: "/aws/codebuild/{{project_name}}-{{codebuild_projectname_main}}"
@@ -116,7 +116,7 @@ Resources:
       ServiceRole: "{{codebuild_role_arn}}"
       Source:
         Type: CODEPIPELINE
-        BuildSpec: operations/cicd/trigger/pr/roles/pipeline/files/buildspec-build-status.yml
+        BuildSpec: operations/cicd/builds/roles/pipelines/files/buildspec-build-status.yml
       LogsConfig:
         CloudWatchLogs:
           GroupName: "/aws/codebuild/{{project_name}}-{{codebuild_projectname_status}}"
