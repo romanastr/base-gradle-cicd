@@ -4,17 +4,17 @@ env:
 phases:
   install:
     commands:
+      - echo -e '#!/bin/bash\n  source operations/cicd/trigger/pr/roles/pipeline/files/scripts.sh; "$@"' > /bin/next
       - chmod +x gradlew
+      - chmod +x /bin/next
   build:
     commands:
       - printenv
-      - ./gradlew --build-cache clean build -x test
+      - next runGradle clean build -x test
   post_build:
     commands:
-      - |
-        if [[ $CODEBUILD_BUILD_SUCCEEDING = 1 ]]; then
-          ./gradlew --build-cache test
-        fi
+      - next runGradle test
+      - next ifCI runGradle jib
 reports:
   GradleCICDReportGroup:
     files:
