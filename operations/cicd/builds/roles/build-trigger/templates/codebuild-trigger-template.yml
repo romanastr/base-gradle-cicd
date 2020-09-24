@@ -1,22 +1,39 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: "CodeBuild project for loading code from GitHub to S3 on PR"
+Description: "CodeBuild project for loading code from GitHub to S3 on PR events"
+Parameters:
+  Build:
+    Type: String
+    AllowedValues:
+      - "{{build_pr_suffix}}"
+      - "{{build_ci_suffix}}"
+    Description: "Type of build, {{build_pr_suffix}} or {{build_ci_suffix}}"
+Mappings:
+  ByBuildType:
+    "{{build_ci_suffix}}":
+      Pattern: PUSH
+      TargetType: HEAD_REF
+      BucketName: "{{source_artifact_bucket_name}}-{{build_ci_suffix | lower}}"
+    "{{build_pr_suffix}}":
+      Pattern: PULL_REQUEST_CREATED, PULL_REQUEST_UPDATED, PULL_REQUEST_REOPENED
+      TargetType: BASE_REF
+      BucketName: "{{source_artifact_bucket_name}}-{{build_pr_suffix | lower}}"
 Resources:
   CodeBuildPr:
     Type: AWS::CodeBuild::Project
     Properties:
       Artifacts:
-        ArtifactIdentifier: "Sources for PR builds"
+        ArtifactIdentifier: !Sub "Sources for ${Build} builds"
         EncryptionDisabled: false
         Packaging: NONE
         Location: !Ref S3OutputBucket
         Name: "/"
         Type: S3
-      Description: "PR trigger CodeBuild"
+      Description: !Sub "${Build} build trigger"
       Environment:
         ComputeType: "{{codebuild_compute_type}}"
         Image: "{{codebuild_image}}"
         Type: LINUX_CONTAINER
-      Name: "{{project_name}}-{{codebuild_projectname_trigger}}"
+      Name: !Sub "{{project_name}}-{{build_name_trigger}}-${Build}"
       ServiceRole: "{{codebuild_role_arn}}"
       Source:
         ReportBuildStatus: true
@@ -37,16 +54,18 @@ Resources:
         FilterGroups:
           -
             - Type: EVENT
-              Pattern: PULL_REQUEST_CREATED, PULL_REQUEST_UPDATED, PULL_REQUEST_REOPENED
+              Pattern: !FindInMap [ByBuildType, !Ref Build, Pattern]
+            - Type: !FindInMap [ByBuildType, !Ref Build, TargetType]
+              Pattern: master
         Webhook: true
       LogsConfig:
         CloudWatchLogs:
-          GroupName: "/aws/codebuild/{{project_name}}-{{codebuild_projectname_trigger}}"
+          GroupName: !Sub "/aws/codebuild/{{project_name}}-{{build_name_trigger}}-${Build}"
           Status: ENABLED
   S3OutputBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: "{{source_artifact_bucket_name}}"
+      BucketName: !FindInMap [ByBuildType, !Ref Build, BucketName]
       BucketEncryption:
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault:
@@ -70,5 +89,5 @@ Resources:
   LogsLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
-      LogGroupName: "/aws/codebuild/{{project_name}}-{{codebuild_projectname_trigger}}"
+      LogGroupName: !Sub "/aws/codebuild/{{project_name}}-{{build_name_trigger}}-${Build}"
       RetentionInDays: "{{audit_expiration_days}}"

@@ -1,10 +1,23 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: "CodePipeline project"
+Parameters:
+  Build:
+    Type: String
+    AllowedValues:
+      - "{{build_pr_suffix}}"
+      - "{{build_ci_suffix}}"
+    Description: "Type of build, PR or CI"
+Mappings:
+  ByBuildType:
+    "{{build_ci_suffix}}":
+      BucketName: "{{source_artifact_bucket_name}}-{{build_ci_suffix | lower}}"
+    "{{build_pr_suffix}}":
+      BucketName: "{{source_artifact_bucket_name}}-{{build_pr_suffix | lower}}"
 Resources:
   CodePipeline:
     Type: AWS::CodePipeline::Pipeline
     Properties:
-      Name: "{{project_name}}-PR-Pipeline"
+      Name: !Sub "{{project_name}}-Pipeline-${Build}"
       RoleArn: "{{codepipeline_role_arn}}"
       Stages:
         -
@@ -19,7 +32,7 @@ Resources:
               OutputArtifacts:
                 - Name: SourceArtifact
               Configuration:
-                S3Bucket: "{{source_artifact_bucket_name}}"
+                S3Bucket: !FindInMap [ByBuildType, !Ref Build, BucketName]
                 S3ObjectKey: "{{source_artifact_key}}"
               RunOrder: 1
         -
@@ -72,7 +85,7 @@ Resources:
     Properties:
       Artifacts:
         Type: CODEPIPELINE
-      Description: "Main Build for PRs"
+      Description: !Sub "Main ${Build} Build"
       Environment:
         ComputeType: "{{codebuild_compute_type}}"
         Image: "{{codebuild_image}}"
@@ -82,28 +95,28 @@ Resources:
             Value: "{{cache_node_host_ssm_parameter}}"
             Type: PARAMETER_STORE
           - Name: BUILD
-            Value: PR
+            Value: !Ref Build
             Type: PLAINTEXT
-      Name: "{{project_name}}-{{codebuild_projectname_main}}"
+      Name: !Sub "{{project_name}}-{{build_name_main}}-${Build}"
       ServiceRole: "{{codebuild_role_arn}}"
       Source:
         Type: CODEPIPELINE
         BuildSpec: operations/cicd/builds/roles/pipelines/files/buildspec-build.yml
       LogsConfig:
         CloudWatchLogs:
-          GroupName: "/aws/codebuild/{{project_name}}-{{codebuild_projectname_main}}"
+          GroupName: !Sub "/aws/codebuild/{{project_name}}-{{build_name_main}}-${Build}"
           Status: ENABLED
   LogsLogGroupMain:
     Type: AWS::Logs::LogGroup
     Properties:
-      LogGroupName: "/aws/codebuild/{{project_name}}-{{codebuild_projectname_main}}"
+      LogGroupName: !Sub "/aws/codebuild/{{project_name}}-{{build_name_main}}-${Build}"
       RetentionInDays: "{{audit_expiration_days}}"
   CodeBuildStatus:
     Type: AWS::CodeBuild::Project
     Properties:
       Artifacts:
         Type: CODEPIPELINE
-      Description: "Reporting Build status for PRs"
+      Description: !Sub "Reporting Build status for ${Build}"
       Environment:
         ComputeType: "{{codebuild_compute_type}}"
         Image: "{{codebuild_image}}"
@@ -112,17 +125,17 @@ Resources:
           - Name: GITHUB_TOKEN
             Value: "{{github_token_ssm_parameter}}"
             Type: PARAMETER_STORE
-      Name: "{{project_name}}-{{codebuild_projectname_status}}"
+      Name: !Sub "{{project_name}}-{{build_name_status}}-${Build}"
       ServiceRole: "{{codebuild_role_arn}}"
       Source:
         Type: CODEPIPELINE
         BuildSpec: operations/cicd/builds/roles/pipelines/files/buildspec-build-status.yml
       LogsConfig:
         CloudWatchLogs:
-          GroupName: "/aws/codebuild/{{project_name}}-{{codebuild_projectname_status}}"
+          GroupName: !Sub "/aws/codebuild/{{project_name}}-{{build_name_status}}-${Build}"
           Status: ENABLED
   LogsLogGroupStatus:
     Type: AWS::Logs::LogGroup
     Properties:
-      LogGroupName: "/aws/codebuild/{{project_name}}-{{codebuild_projectname_status}}"
+      LogGroupName: !Sub "/aws/codebuild/{{project_name}}-{{build_name_status}}-${Build}"
       RetentionInDays: "{{audit_expiration_days}}"

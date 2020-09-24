@@ -5,5 +5,5 @@
   roles:
     - codebuild-role
     - codepipeline-role
-    - pr-trigger
+    - build-trigger
     - pipelines
