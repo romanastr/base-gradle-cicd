@@ -1,8 +1,11 @@
 - name: "Create a CodePipeline project"
   cloudformation:
-    stack_name: "CodePipeline-{{build_pr_suffix}}"
+    stack_name: "CodePipeline-{{ item }}"
     state: present
     region: "{{aws_region}}"
     template_body: "{{lookup('template', 'build-codepipeline-template.yml')}}"
     template_parameters:
-      Build: "{{build_pr_suffix}}"
+      Build: "{{ item }}"
+  with_items:
+    - "{{build_pr_suffix}}"
+    - "{{build_ci_suffix}}"
