@@ -1,5 +1,6 @@
 import com.google.cloud.tools.jib.gradle.JibExtension
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension
+import java.io.ByteArrayOutputStream;
 
 plugins {
     `java-library`
@@ -24,14 +25,30 @@ configure(subprojects.filter { it.name in listOf("api", "stats-api", "stats-repo
     //  openjdk:11.0.7-jre-slim
     val baseJavaImage = "openjdk@sha256:1fb56466022f61c64b1fb5f15450619626fd4dd4c63d81c29f1142120df374cf"
 
+    //create ECR repositories, if do not exist
+    project.exec {
+        executable = "aws"
+        args = listOf("ecr", "create-repository", "--repository-name", "base-gradle-${project.name}")
+        isIgnoreExitValue = true
+    }
+
+    //fetch account id
+    val accountId: String = ByteArrayOutputStream().use {  outputStream ->
+        project.exec {
+            executable = "aws"
+            args = listOf("sts", "get-caller-identity", "--query=\"Account\"", "--output", "text")
+            standardOutput = outputStream
+        }
+        outputStream.toString().trim()
+    }
+
     apply(plugin = "com.google.cloud.tools.jib")
     configure<JibExtension> {
         from {
             image = baseJavaImage
         }
         to {
-            image = "registry.hub.docker.com/romanastr/base-gradle-${project.name}:${project.version}"
-            credHelper = "desktop"
+            image = "${accountId}.dkr.ecr.us-east-1.amazonaws.com/base-gradle-${project.name}:${project.version}"
         }
         container {
             ports = listOf("8080")
