@@ -1,0 +1,11 @@
+- name: "Create a CodeBuild trigger project"
+  cloudformation:
+    stack_name: "{{build_name_trigger}}-{{ item }}"
+    state: present
+    region: "{{aws_region}}"
+    template_body: "{{lookup('template', 'codebuild-trigger-template.yml')}}"
+    template_parameters:
+      Build: "{{ item }}"
+  with_items:
+    - "{{build_pr_suffix}}"
+    - "{{build_ci_suffix}}"
