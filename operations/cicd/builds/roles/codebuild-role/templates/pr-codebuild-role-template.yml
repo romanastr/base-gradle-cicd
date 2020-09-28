@@ -28,6 +28,7 @@ Resources:
               - codebuild:*
               - codepipeline:*
               - ssm:Get*
+              - ecr:*
             Resource: "*"
       Roles:
         - !Ref CodeBuildRole
