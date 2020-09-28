@@ -1,6 +1,6 @@
 import com.google.cloud.tools.jib.gradle.JibExtension
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension
-import java.io.ByteArrayOutputStream;
+import java.io.ByteArrayOutputStream
 
 plugins {
     `java-library`
@@ -9,7 +9,7 @@ plugins {
     id("org.springframework.boot") version "2.2.6.RELEASE" apply false
     id("io.spring.dependency-management") version "1.0.8.RELEASE" apply false
     id("org.flywaydb.flyway") version "6.5.0" apply false
-    id("com.google.cloud.tools.jib") version "2.4.0" apply false
+    id("com.google.cloud.tools.jib") version "2.5.0" apply false
 }
 
 allprojects {
@@ -18,41 +18,6 @@ allprojects {
     repositories {
         mavenCentral()
         gradlePluginPortal()
-    }
-}
-
-configure(subprojects.filter { it.name in listOf("api", "stats-api", "stats-reporting") }) {
-    //  openjdk:11.0.7-jre-slim
-    val baseJavaImage = "openjdk@sha256:1fb56466022f61c64b1fb5f15450619626fd4dd4c63d81c29f1142120df374cf"
-
-    //create ECR repositories, if do not exist
-    project.exec {
-        executable = "aws"
-        args = listOf("ecr", "create-repository", "--repository-name", "base-gradle-${project.name}")
-        isIgnoreExitValue = true
-    }
-
-    //fetch account id
-    val accountId: String = ByteArrayOutputStream().use {  outputStream ->
-        project.exec {
-            executable = "aws"
-            args = listOf("sts", "get-caller-identity", "--query=\"Account\"", "--output", "text")
-            standardOutput = outputStream
-        }
-        outputStream.toString().trim()
-    }
-
-    apply(plugin = "com.google.cloud.tools.jib")
-    configure<JibExtension> {
-        from {
-            image = baseJavaImage
-        }
-        to {
-            image = "${accountId}.dkr.ecr.us-east-1.amazonaws.com/base-gradle-${project.name}:${project.version}"
-        }
-        container {
-            ports = listOf("8080")
-        }
     }
 }
 
@@ -125,5 +90,62 @@ subprojects {
             }
         }
         dependsOn(tasks.jacocoTestReport)
+    }
+}
+
+
+// Configuration for all docker operations
+
+fun getValue(exec: String, params: List<String>): String =
+        ByteArrayOutputStream().use { outputStream ->
+            project.exec {
+                executable = exec
+                args = params
+                standardOutput = outputStream
+            }
+            outputStream.toString().trim()
+        }
+
+val accountId = System.getProperty("accountId") ?: getValue("aws", listOf("sts", "get-caller-identity", "--query=\"Account\"", "--output", "text"))
+val awsRegion = "us-east-1"
+println("AWS account ID = $accountId; region = $awsRegion")
+
+tasks.register("docker-login") {
+    //login to ECR docker repo
+    println("Logging in to ECR docker repo")
+    val dockerToken = getValue("aws", listOf("ecr", "get-login-password", "--region", awsRegion))
+    getValue("docker", listOf("login", "--username", "AWS", "--password", dockerToken, "${accountId}.dkr.ecr.us-east-1.amazonaws.com"))
+}
+
+configure(subprojects.filter { it.name in listOf("api", "stats-api", "stats-reporting") }) {
+    //  openjdk:11.0.7-jre-slim
+    val baseJavaImage = "openjdk@sha256:1fb56466022f61c64b1fb5f15450619626fd4dd4c63d81c29f1142120df374cf"
+
+    apply(plugin = "com.google.cloud.tools.jib")
+    configure<JibExtension> {
+        from {
+            image = baseJavaImage
+        }
+        to {
+            image = "${accountId}.dkr.ecr.us-east-1.amazonaws.com/base-gradle-${project.name}:${project.version}"
+        }
+        container {
+            ports = listOf("8080")
+        }
+    }
+
+    tasks.register("create-repo") {
+        //create ECR repositories, if not exist
+        println("Creating ECR repo for project ${project.name}")
+        project.exec {
+            executable = "aws"
+            args = listOf("ecr", "create-repository", "--repository-name", "base-gradle-${project.name}")
+            isIgnoreExitValue = true
+        }
+    }
+
+    tasks.named("jib") {
+        dependsOn(rootProject.tasks.named("docker-login"))
+        dependsOn(tasks.named("create-repo"))
     }
 }
