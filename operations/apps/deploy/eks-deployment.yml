@@ -1,0 +1,8 @@
+---
+- name: "Create an EKS cluster, deploy infrastructure and application stack"
+  hosts: localhost
+  connection: local
+  roles:
+    - eks-app-cluster
+    - eks-app-cluster-shutdown
+#    - k8s-app-deployment

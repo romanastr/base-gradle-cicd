@@ -3,7 +3,13 @@
     stack_name: "{{eks_cache_cluster_stack_name}}"
     state: present
     region: "{{aws_region}}"
-    template_body: "{{lookup('template', 'eks-cache-cluster.yml')}}"
+    template_body: "{{lookup('template', '{{shared_folder}}/eks-cluster.yml')}}"
+    template_parameters:
+      ClusterName: "{{eks_cache_cluster_name}}"
+      CidrBlock: "{{eks_cache_cluster_cidr_block}}"
+      AvailabilityZone1: "{{eks_cache_cluster_az_1}}"
+      AvailabilityZone2: "{{eks_cache_cluster_az_2}}"
+      KubernetesVersion: "{{eks_cluster_kubernetes_version}}"
   register: output
 - name: "Register VPC id"
   set_fact:
