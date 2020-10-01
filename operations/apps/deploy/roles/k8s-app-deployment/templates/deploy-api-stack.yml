@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: "{{eks_app_cluster_name}}-api-service"
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-backend-protocol: http
+spec:
+  selector:
+    app: "{{k8s_app_cluster_namespace}}-api"
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+  type: LoadBalancer
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api
+  labels:
+    app: "{{k8s_app_cluster_namespace}}-api"
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: "{{k8s_app_cluster_namespace}}-api"
+  template:
+    metadata:
+      labels:
+        app: "{{k8s_app_cluster_namespace}}-api"
+    spec:
+      containers:
+        - name: api
+          image: "{{aws_account_id}}.dkr.ecr.us-east-1.amazonaws.com/base-gradle-api:{{k8s_app_version}}"
+          ports:
+            - containerPort: 8080

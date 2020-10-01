@@ -5,4 +5,4 @@
   roles:
     - eks-app-cluster
     - eks-app-cluster-shutdown
-#    - k8s-app-deployment
+    - k8s-app-deployment
