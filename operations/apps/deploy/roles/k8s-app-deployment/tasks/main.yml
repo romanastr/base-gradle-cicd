@@ -9,5 +9,11 @@
     state: present
 - name: "Deploy app stack"
   k8s:
-    definition: "{{ lookup('template', 'deploy-api-stack.yml') }}"
+    definition: "{{ lookup('template', 'deploy-app-stack.yml')}}"
     namespace: "{{k8s_app_cluster_namespace}}"
+  vars:
+    app_name: "{{item}}"
+  with_items:
+    - api
+    - stats-api
+    - stats-reporting
