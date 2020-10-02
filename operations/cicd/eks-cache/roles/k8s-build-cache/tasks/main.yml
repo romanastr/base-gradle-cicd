@@ -1,4 +1,4 @@
-- name: "Deploy build cache nodes to EKS cache cluster"
+- name: "Update EKS cache cluster config"
   shell: |
     aws eks --region "{{aws_region}}" update-kubeconfig --name "{{eks_cache_cluster_name}}"
 - name: "Create a k8s namespace"
@@ -10,9 +10,9 @@
 - name: "Deploy EFS CSI driver"
   k8s:
     definition: "{{ lookup('template', 'efs-csi-driver.yml') }}"
-- name: "Deploy build cache node"
+- name: "Deploy build cache stack"
   k8s:
-    definition: "{{ lookup('template', 'build-cache-node.yml') }}"
+    definition: "{{ lookup('template', 'build-cache-stack.yml') }}"
     namespace: "{{k8s_cache_cluster_namespace}}"
 - name: "Get the Cache Node load balancer URL"
   k8s_info:

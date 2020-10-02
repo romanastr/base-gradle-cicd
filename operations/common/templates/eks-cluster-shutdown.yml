@@ -4,6 +4,9 @@ Parameters:
   OperationList:
     Type: CommaDelimitedList
     Description: "List of operations that will be invoked - lambda or cfn"
+  LambdaDeleteName:
+    Type: String
+    Description: "Name of a Lambda function, which performs shut down operations"
 Resources:
   TimedShutdownRule:
     Type: AWS::Events::Rule
@@ -19,7 +22,7 @@ Resources:
     DependsOn:
       - DeleteCFNLambdaExecutionRole
     Properties:
-      FunctionName: "{{lambda_delete_name}}"
+      FunctionName: !Ref LambdaDeleteName
       Code:
         ZipFile: |
           import boto3
@@ -71,12 +74,12 @@ Resources:
   LogsLogGroupDelete:
     Type: AWS::Logs::LogGroup
     Properties:
-      LogGroupName: "/aws/lambda/{{lambda_delete_name}}"
+      LogGroupName: !Sub "/aws/lambda/${LambdaDeleteName}"
       RetentionInDays: "{{audit_expiration_days}}"
   PermissionForDeleteCFNLambda:
     Type: AWS::Lambda::Permission
     Properties:
-      FunctionName: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:{{lambda_delete_name}}"
+      FunctionName: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${LambdaDeleteName}"
       Action: lambda:InvokeFunction
       Principal: events.amazonaws.com
       SourceArn: !GetAtt TimedShutdownRule.Arn
@@ -113,4 +116,5 @@ Resources:
                   - eks:De*
                   - elasticfilesystem:De*
                   - kms:ScheduleKeyDeletion
+                  - logs:De*
                 Resource: "*"

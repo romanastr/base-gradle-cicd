@@ -1,0 +1,19 @@
+- name: "Update EKS app cluster config"
+  shell: |
+    aws eks --region "{{aws_region}}" update-kubeconfig --name "{{eks_app_cluster_name}}"
+- name: "Create a k8s namespace"
+  k8s:
+    name: "{{k8s_app_cluster_namespace}}"
+    api_version: v1
+    kind: Namespace
+    state: present
+- name: "Deploy app stack"
+  k8s:
+    definition: "{{ lookup('template', 'deploy-app-stack.yml')}}"
+    namespace: "{{k8s_app_cluster_namespace}}"
+  vars:
+    app_name: "{{item}}"
+  with_items:
+    - api
+    - stats-api
+    - stats-reporting

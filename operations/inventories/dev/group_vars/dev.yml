@@ -1,6 +1,5 @@
 aws_region: us-east-1
-aws_az_1: us-east-1d
-aws_az_2: us-east-1f
+aws_account_id: 144160365449
 project_name: Gradle-CICD
 source_artifact_bucket_name: codebuild-trigger
 source_artifact_key: Sources.zip
@@ -11,8 +10,6 @@ build_ci_suffix: CI
 build_pr_suffix: PR
 codebuild_compute_type: BUILD_GENERAL1_SMALL
 codebuild_image: aws/codebuild/standard:4.0
-lambda_delete_name: DeleteCFNStacksLambda
-lambda_cleanup_name: LambdaDestroyElbs
 audit_infrequent_transition_days: 30
 audit_expiration_days: 90
 github_token: !vault |
@@ -25,9 +22,33 @@ github_token: !vault |
   3966313835353066636532626636383930623364353239626238
 github_token_ssm_parameter: /CICD/GitHub/Token
 cache_node_host_ssm_parameter: /CICD/CacheNode/URL
-eks_cache_cluster_name: cache-cluster
+
 eks_cache_cluster_stack_name: EKS-Cluster-CICD
-eks_cache_cluster_kubernetes_version: 1.17
+eks_cache_cluster_name: cache-cluster
 eks_cache_cluster_cidr_block: 192.168.100.0/25
+eks_cache_cluster_az_1: us-east-1d
+eks_cache_cluster_az_2: us-east-1f
+eks_cache_lambda_cleanup_name: CacheLambdaDestroyElbs
+eks_cache_lambda_delete_name: CacheDeleteCFNStacksLambda
+
+eks_app_cluster_stack_name: EKS-XKCD-App-Cluster
+eks_app_cluster_name: apps-cluster
+eks_app_cluster_cidr_block: 192.168.100.128/25
+eks_app_cluster_az_1: us-east-1d
+eks_app_cluster_az_2: us-east-1f
+eks_app_lambda_cleanup_name: AppLambdaDestroyElbs
+eks_app_lambda_delete_name: AppDeleteCFNStacksLambda
+
+eks_cluster_kubernetes_version: 1.17
+
 k8s_cache_cluster_namespace: build-cache
 k8s_cache_cluster_volume_name: build-cache-mount
+
+k8s_app_cluster_namespace: app-deploy
+k8s_app_version: 1.0
+k8s_app_replicas: 2
+k8s_app_container_port: 8080
+
+lambda_delete_name: DeleteCFNStacksLambda
+
+shared_folder: ../../../../common/templates

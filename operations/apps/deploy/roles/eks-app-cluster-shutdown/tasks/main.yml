@@ -1,21 +1,21 @@
 - name: "Create a Lambda to destroy load balancers"
   cloudformation:
-    stack_name: "{{eks_cache_cluster_stack_name}}-Destroy-Load-Balancers"
+    stack_name: "{{eks_app_cluster_stack_name}}-Destroy-Load-Balancers"
     state: present
     region: "{{aws_region}}"
     template_body: "{{lookup('template', '{{shared_folder}}/eks-destroy-loadbalancers.yml')}}"
     template_parameters:
-      LambdaCleanupName: "{{eks_cache_lambda_cleanup_name}}"
-      VpcId: "{{eks_cache_cluster_vpc_id}}"
+      LambdaCleanupName: "{{eks_app_lambda_cleanup_name}}"
+      VpcId: "{{eks_app_cluster_vpc_id}}"
 - name: "Create EKS cluster shutdown stack"
   cloudformation:
-    stack_name: "{{eks_cache_cluster_stack_name}}-shutdown"
+    stack_name: "{{eks_app_cluster_stack_name}}-shutdown"
     state: present
     region: "{{aws_region}}"
     template_body: "{{lookup('template', '{{shared_folder}}/eks-cluster-shutdown.yml')}}"
     template_parameters:
       OperationList:
-        - "cfn:{{eks_cache_cluster_stack_name}}-EFS-Mount"
-        - "cfn:{{eks_cache_cluster_stack_name}}"
-        - "lambda:{{eks_cache_lambda_cleanup_name}}"
-      LambdaDeleteName: "{{eks_cache_lambda_delete_name}}"
+        - "cfn:{{eks_app_cluster_stack_name}}-EFS-Mount"
+        - "cfn:{{eks_app_cluster_stack_name}}"
+        - "lambda:{{eks_app_lambda_cleanup_name}}"
+      LambdaDeleteName: "{{eks_app_lambda_delete_name}}"

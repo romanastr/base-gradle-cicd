@@ -1,5 +1,21 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: "EKS Cluster for CI/CD"
+Description: "EKS Cluster"
+Parameters:
+  ClusterName:
+    Type: String
+    Description: "Name of EKS cluster"
+  CidrBlock:
+    Type: String
+    Description: "IPv4 CIDR block for the new VPC for the EKS cluster"
+  AvailabilityZone1:
+    Type: String
+    Description: "First AZ for EKS cluster"
+  AvailabilityZone2:
+    Type: String
+    Description: "Second AZ for EKS cluster"
+  KubernetesVersion:
+    Type: String
+    Description: "Version of Kubernetes"
 Resources:
   ControlPlane:
     Type: AWS::EKS::Cluster
@@ -9,7 +25,7 @@ Resources:
             KeyArn: !GetAtt KmsSecretsKey.Arn
           Resources:
             - secrets
-      Name: "{{eks_cache_cluster_name}}"
+      Name: !Ref ClusterName
       ResourcesVpcConfig:
         SecurityGroupIds:
           - !Ref ControlPlaneSecurityGroup
@@ -19,13 +35,13 @@ Resources:
           - !Ref PrivateSubnet1
           - !Ref PrivateSubnet2
       RoleArn: !GetAtt ServiceRole.Arn
-      Version: "{{eks_cache_cluster_kubernetes_version}}"
+      Version: !Ref KubernetesVersion
     DependsOn:
       - KmsSecretsKey
   VPC:
     Type: AWS::EC2::VPC
     Properties:
-      CidrBlock: "{{eks_cache_cluster_cidr_block}}"
+      CidrBlock: !Ref CidrBlock
       EnableDnsHostnames: true
       EnableDnsSupport: true
       Tags:
@@ -34,7 +50,7 @@ Resources:
   PublicSubnet1:
     Type: AWS::EC2::Subnet
     Properties:
-      AvailabilityZone: "{{aws_az_1}}"
+      AvailabilityZone: !Ref AvailabilityZone1
       CidrBlock: !Select [ 0, !Cidr [ !GetAtt VPC.CidrBlock, 4, 5 ]]
       MapPublicIpOnLaunch: true
       Tags:
@@ -46,7 +62,7 @@ Resources:
   PublicSubnet2:
     Type: AWS::EC2::Subnet
     Properties:
-      AvailabilityZone: "{{aws_az_2}}"
+      AvailabilityZone: !Ref AvailabilityZone2
       CidrBlock: !Select [ 1, !Cidr [ !GetAtt VPC.CidrBlock, 4, 5 ]]
       MapPublicIpOnLaunch: true
       Tags:
@@ -58,7 +74,7 @@ Resources:
   PrivateSubnet1:
     Type: AWS::EC2::Subnet
     Properties:
-      AvailabilityZone: "{{aws_az_1}}"
+      AvailabilityZone: !Ref AvailabilityZone1
       CidrBlock: !Select [ 2, !Cidr [ !GetAtt VPC.CidrBlock, 4, 5 ]]
       Tags:
         - Key: kubernetes.io/role/internal-elb
@@ -69,7 +85,7 @@ Resources:
   PrivateSubnet2:
     Type: AWS::EC2::Subnet
     Properties:
-      AvailabilityZone: "{{aws_az_2}}"
+      AvailabilityZone: !Ref AvailabilityZone2
       CidrBlock: !Select [ 3, !Cidr [ !GetAtt VPC.CidrBlock, 4, 5 ]]
       Tags:
         - Key: kubernetes.io/role/internal-elb
@@ -244,7 +260,7 @@ Resources:
   ManagedNodeGroup:
     Type: AWS::EKS::Nodegroup
     Properties:
-      ClusterName: "{{eks_cache_cluster_name}}"
+      ClusterName: !Ref ClusterName
       NodegroupName: standard-workers
       ScalingConfig:
         MinSize: 1
@@ -258,7 +274,7 @@ Resources:
       AmiType: AL2_x86_64
       NodeRole: !GetAtt NodeInstanceRole.Arn
       Labels:
-        alpha.eksctl.io/cluster-name: "{{eks_cache_cluster_name}}"
+        alpha.eksctl.io/cluster-name: !Ref ClusterName
         alpha.eksctl.io/nodegroup-name: standard-workers
       Tags:
         alpha.eksctl.io/nodegroup-name: standard-workers
@@ -317,6 +333,11 @@ Resources:
         - arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy
         - arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy
       Path: /
+  LogsLogGroupEksCluster:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/eks/${ClusterName}/cluster"
+      RetentionInDays: "{{audit_expiration_days}}"
 Outputs:
   PrivateSubnet1:
     Export:
