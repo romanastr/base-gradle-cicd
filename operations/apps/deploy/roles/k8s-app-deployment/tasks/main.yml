@@ -7,6 +7,10 @@
     api_version: v1
     kind: Namespace
     state: present
+- name: "Deploy ConfigMaps and Secrets"
+  k8s:
+    definition: "{{ lookup('template', 'configMap-secret-stack.yml')}}"
+    namespace: "{{k8s_app_cluster_namespace}}"
 - name: "Deploy app stack"
   k8s:
     definition: "{{ lookup('template', 'deploy-app-stack.yml')}}"

@@ -4,5 +4,6 @@
   connection: local
   roles:
     - eks-app-cluster
+    - rds-db
     - eks-app-cluster-shutdown
     - k8s-app-deployment

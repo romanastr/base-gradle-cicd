@@ -333,12 +333,15 @@ Resources:
         - arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy
         - arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy
       Path: /
-  LogsLogGroupEksCluster:
-    Type: AWS::Logs::LogGroup
-    Properties:
-      LogGroupName: !Sub "/aws/eks/${ClusterName}/cluster"
-      RetentionInDays: "{{audit_expiration_days}}"
 Outputs:
+  PublicSubnet1:
+    Export:
+      Name: !Sub ${AWS::StackName}::PublicSubnet1
+    Value: !Ref PublicSubnet1
+  PublicSubnet2:
+    Export:
+      Name: !Sub ${AWS::StackName}::PublicSubnet2
+    Value: !Ref PublicSubnet2
   PrivateSubnet1:
     Export:
       Name: !Sub ${AWS::StackName}::PrivateSubnet1

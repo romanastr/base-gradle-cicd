@@ -1,0 +1,17 @@
+- name: "Create a MariaDB deployment"
+  cloudformation:
+    stack_name: "{{eks_app_cluster_stack_name}}-RDS"
+    state: present
+    region: "{{aws_region}}"
+    template_body: "{{lookup('template', 'rds-db.yml')}}"
+    template_parameters:
+      DatabaseName: "{{app_db_database}}"
+      MasterUsername: "{{app_db_username}}"
+      MasterUserPassword: "{{app_db_password}}"
+      DBPort: "{{app_db_port}}"
+  register: output
+- name: "DB Connection URL"
+  set_fact:
+    app_db_connection_url: "{{output.stack_outputs.DBConnectionUrl}}"
+- name: "Output DB Connection URL"
+  debug: msg="DB Connection URL = {{ app_db_connection_url }}"

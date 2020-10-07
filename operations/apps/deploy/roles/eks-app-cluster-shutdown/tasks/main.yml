@@ -16,6 +16,7 @@
     template_parameters:
       OperationList:
         - "cfn:{{eks_app_cluster_stack_name}}-EFS-Mount"
+        - "cfn:{{eks_app_cluster_stack_name}}-RDS"
         - "cfn:{{eks_app_cluster_stack_name}}"
         - "lambda:{{eks_app_lambda_cleanup_name}}"
       LambdaDeleteName: "{{eks_app_lambda_delete_name}}"

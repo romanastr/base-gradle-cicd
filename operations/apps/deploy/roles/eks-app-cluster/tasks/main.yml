@@ -14,10 +14,18 @@
 - name: "Register VPC id"
   set_fact:
     eks_app_cluster_vpc_id: "{{output.stack_outputs.VPC}}"
+    eks_public_subnet_1: "{{output.stack_outputs.PublicSubnet1}}"
+    eks_public_subnet_2: "{{output.stack_outputs.PublicSubnet2}}"
 - name: "Print VPC id"
-  debug: msg="EKS app cluster VPC id = {{ eks_app_cluster_vpc_id }}"
+  debug:
+    msg:
+      - "EKS app cluster VPC id = {{ eks_app_cluster_vpc_id }}"
+      - "RDS subnet 1 = {{eks_public_subnet_1}}"
+      - "RDS subnet 2 = {{eks_public_subnet_2}}"
 - name: "Enable EKS cluster Cloudwatch logging"
   shell: |
     aws eks --region "{{aws_region}}" update-cluster-config --name "{{eks_app_cluster_name}}" \
       --logging '{"clusterLogging":[{"types":["api","audit","authenticator","controllerManager","scheduler"],"enabled":true}]}'
+    aws logs put-retention-policy --log-group-name "/aws/eks/{{eks_app_cluster_name}}/cluster" \
+      --retention-in-days "{{audit_expiration_days}}"
   ignore_errors: yes
