@@ -32,5 +32,10 @@ spec:
       containers:
         - name: "{{app_name}}"
           image: "{{aws_account_id}}.dkr.ecr.us-east-1.amazonaws.com/base-gradle-{{app_name}}:{{k8s_app_version}}"
+          envFrom:
+            - configMapRef:
+                name: "{{eks_app_cluster_name}}-config-map"
+            - secretRef:
+                name: "{{eks_app_cluster_name}}-secret"
           ports:
             - containerPort: 8080

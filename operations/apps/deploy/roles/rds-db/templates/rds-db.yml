@@ -1,0 +1,69 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: "Aurora DB"
+Parameters:
+  DatabaseName:
+    Type: String
+    Description: "Database name"
+  MasterUsername:
+    Type: String
+    Description: "Master username for DB"
+  MasterUserPassword:
+    Type: String
+    Description: "Master password for DB"
+    NoEcho: true
+  DBPort:
+    Type: Number
+    Description: "DB port"
+Resources:
+  RdsServerInstance:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      AllocatedStorage: 20
+      AllowMajorVersionUpgrade: false
+      AutoMinorVersionUpgrade: true
+      AvailabilityZone: "{{eks_app_cluster_az_1}}"
+      DBInstanceClass: db.t3.micro
+      DBSubnetGroupName: !Ref RdsSubnetGroup
+      DBName: !Ref DatabaseName
+      Engine: mariadb
+      EngineVersion: 10.4.13
+      MasterUsername: !Ref MasterUsername
+      MasterUserPassword: !Ref MasterUserPassword
+      Port: !Ref DBPort
+      EnableCloudwatchLogsExports:
+        - audit
+        - error
+        - general
+        - slowquery
+      PubliclyAccessible: true
+      StorageType: gp2
+      StorageEncrypted: true
+      VPCSecurityGroups:
+        - !GetAtt RdsSecurityGroup.GroupId
+  RdsSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: "Subnets for app VPC"
+      DBSubnetGroupName: eks-app-subnets
+      SubnetIds:
+        - "{{eks_public_subnet_1}}"
+        - "{{eks_public_subnet_2}}"
+  RdsSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: "Security group for RDS"
+      VpcId: "{{eks_app_cluster_vpc_id}}"
+  EFSSecurityGroupIngress:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      Description: Allow communication on all ports
+      GroupId: !GetAtt RdsSecurityGroup.GroupId
+      IpProtocol: tcp
+      CidrIp: 0.0.0.0/0
+      FromPort: !Ref DBPort
+      ToPort: !Ref DBPort
+Outputs:
+  DBConnectionUrl:
+    Export:
+      Name: DBConnectionUrl
+    Value: !GetAtt RdsServerInstance.Endpoint.Address

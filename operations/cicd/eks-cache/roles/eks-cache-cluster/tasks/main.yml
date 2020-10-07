@@ -20,3 +20,5 @@
   shell: |
     aws eks --region "{{aws_region}}" update-cluster-config --name "{{eks_cache_cluster_name}}" \
       --logging '{"clusterLogging":[{"types":["api","audit","authenticator","controllerManager","scheduler"],"enabled":true}]}'
+    aws logs put-retention-policy --log-group-name "/aws/eks/{{eks_cache_cluster_name}}/cluster" \
+      --retention-in-days "{{audit_expiration_days}}"
