@@ -117,20 +117,44 @@ tasks.register("docker-login") {
     getValue("docker", listOf("login", "--username", "AWS", "--password", dockerToken, "${accountId}.dkr.ecr.us-east-1.amazonaws.com"))
 }
 
-configure(subprojects.filter { it.name in listOf("api", "stats-api", "stats-reporting") }) {
-    //  openjdk:11.0.7-jre-slim
-    val baseJavaImage = "openjdk@sha256:1fb56466022f61c64b1fb5f15450619626fd4dd4c63d81c29f1142120df374cf"
+configure(subprojects.filter { it.name in listOf("api", "flyway", "stats-api", "stats-reporting") }) {
 
     apply(plugin = "com.google.cloud.tools.jib")
     configure<JibExtension> {
-        from {
-            image = baseJavaImage
+
+        // only for flyway
+        if(project.name == "flyway") {
+            from {
+                image = "flyway/flyway:6.0.8-alpine"
+                //image = "flyway@sha256:d73e9d8d2a8eb9a1ff7967afcdaa491ee1853930ea93befa18a2d8e991d509d1"
+            }
+            container {
+                entrypoint = listOf("/flyway/flyway")
+            }
+
+            extraDirectories {
+                paths {
+                    path {
+                        setFrom("src/main/resources/db/migration")
+                        into = "/flyway/sql"
+                    }
+                }
+            }
+        } else {
+
+        // only java applications
+            from {
+                //  openjdk:11.0.7-jre-slim
+                image = "openjdk@sha256:1fb56466022f61c64b1fb5f15450619626fd4dd4c63d81c29f1142120df374cf"
+            }
+            container {
+                ports = listOf("8080")
+            }
         }
+
+        // common part
         to {
             image = "${accountId}.dkr.ecr.us-east-1.amazonaws.com/base-gradle-${project.name}:${project.version}"
-        }
-        container {
-            ports = listOf("8080")
         }
     }
 
