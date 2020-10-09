@@ -117,4 +117,5 @@ Resources:
                   - elasticfilesystem:De*
                   - kms:ScheduleKeyDeletion
                   - logs:De*
+                  - rds:De*
                 Resource: "*"

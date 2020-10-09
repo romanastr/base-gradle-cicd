@@ -11,6 +11,10 @@
   k8s:
     definition: "{{ lookup('template', 'configMap-secret-stack.yml')}}"
     namespace: "{{k8s_app_cluster_namespace}}"
+- name: "Run flyway"
+  k8s:
+    definition: "{{ lookup('template', 'flyway-job.yml')}}"
+    namespace: "{{k8s_app_cluster_namespace}}"
 - name: "Deploy app stack"
   k8s:
     definition: "{{ lookup('template', 'deploy-app-stack.yml')}}"

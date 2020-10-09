@@ -1,0 +1,31 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "{{eks_app_cluster_name}}-flyway-job"
+spec:
+  template:
+    spec:
+      containers:
+        - name: "{{aws_account_id}}"
+          image: "{{aws_account_id}}.dkr.ecr.us-east-1.amazonaws.com/base-gradle-flyway:{{k8s_app_version}}"
+          args:
+            - migrate
+          env:
+            - name: FLYWAY_USER
+              valueFrom:
+                secretKeyRef:
+                  name: "{{eks_app_cluster_name}}-secret"
+                  key: SPRING_DATASOURCE_USERNAME
+            - name: FLYWAY_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: "{{eks_app_cluster_name}}-secret"
+                  key: SPRING_DATASOURCE_PASSWORD
+            - name: FLYWAY_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: "{{eks_app_cluster_name}}-config-map"
+                  key: SPRING_DATASOURCE_URL
+            - name: FLYWAY_SCHEMAS
+              value: "{{app_db_database}}"
+      restartPolicy: Never
