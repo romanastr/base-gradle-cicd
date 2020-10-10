@@ -1,0 +1,17 @@
+- name: "Create an Amazon MQ deployment"
+  cloudformation:
+    stack_name: "{{eks_app_cluster_stack_name}}-Amazon-MQ"
+    state: present
+    region: "{{aws_region}}"
+    template_body: "{{lookup('template', 'amazon-mq.yml')}}"
+    template_parameters:
+      MqUsername: "{{message_bus_username}}"
+      MqUserPassword: "{{message_bus_password}}"
+      MqAdminPort: "{{message_bus_admin_port}}"
+      MqDataPort: "{{message_bus_data_port}}"
+  register: output
+- name: "Get Amazon MQ Connection URL"
+  set_fact:
+    amazon_mq_connection_url: "{{output.stack_outputs.BrokerConnectionUrl[0]}}"
+- name: "Output Amazon MQ Connection URL"
+  debug: msg="Amazon MQ Connection URL = {{ amazon_mq_connection_url }}"

@@ -15,6 +15,7 @@
     template_body: "{{lookup('template', '{{shared_folder}}/eks-cluster-shutdown.yml')}}"
     template_parameters:
       OperationList:
+        - "cfn:{{eks_app_cluster_stack_name}}-Amazon-MQ"
         - "cfn:{{eks_app_cluster_stack_name}}-RDS"
         - "cfn:{{eks_app_cluster_stack_name}}"
         - "lambda:{{eks_app_lambda_cleanup_name}}"

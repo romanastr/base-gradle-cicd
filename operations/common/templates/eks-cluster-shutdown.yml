@@ -118,4 +118,5 @@ Resources:
                   - kms:ScheduleKeyDeletion
                   - logs:De*
                   - rds:De*
+                  - mq:De*
                 Resource: "*"

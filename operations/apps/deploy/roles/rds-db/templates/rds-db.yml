@@ -53,10 +53,10 @@ Resources:
     Properties:
       GroupDescription: "Security group for RDS"
       VpcId: "{{eks_app_cluster_vpc_id}}"
-  EFSSecurityGroupIngress:
+  RdsSecurityGroupIngress:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
-      Description: Allow communication on all ports
+      Description: Allow inbound connections on DB port
       GroupId: !GetAtt RdsSecurityGroup.GroupId
       IpProtocol: tcp
       CidrIp: 0.0.0.0/0

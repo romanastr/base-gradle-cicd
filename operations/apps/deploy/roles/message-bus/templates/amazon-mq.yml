@@ -1,0 +1,68 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: "Amazon MQ"
+Parameters:
+  MqUsername:
+    Type: String
+    Description: "Amazon MQ username"
+  MqUserPassword:
+    Type: String
+    Description: "Amazon MQ user password"
+    NoEcho: true
+  MqAdminPort:
+    Type: Number
+    Description: "Amazon MQ admin port"
+  MqDataPort:
+    Type: Number
+    Description: "Amazon MQ data port"
+Resources:
+  AmazonMqBrokerInstance:
+    Type: AWS::AmazonMQ::Broker
+    Properties:
+      AutoMinorVersionUpgrade: true
+      BrokerName: "{{message_bus_broker_name}}"
+      DeploymentMode: SINGLE_INSTANCE
+      EncryptionOptions:
+        UseAwsOwnedKey: true
+      EngineType: ACTIVEMQ
+      EngineVersion: 5.15.12
+      HostInstanceType: mq.t3.micro
+      Logs:
+        Audit: true
+        General: true
+      PubliclyAccessible: true
+      SecurityGroups:
+        - !Ref AmazonMqSecurityGroup
+      SubnetIds:
+        - "{{eks_public_subnet_1}}"
+      Users:
+        - ConsoleAccess: true
+          Username: !Ref MqUsername
+          Password: !Ref MqUserPassword
+  AmazonMqSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: "Security group for RDS"
+      VpcId: "{{eks_app_cluster_vpc_id}}"
+  MqAdminSecurityGroupIngress:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      Description: Allow inbound connections on Admin port
+      GroupId: !Ref AmazonMqSecurityGroup
+      IpProtocol: tcp
+      CidrIp: 0.0.0.0/0
+      FromPort: !Ref MqAdminPort
+      ToPort: !Ref MqAdminPort
+  MqDataSecurityGroupIngress:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      Description: Allow inbound connections on data port
+      GroupId: !Ref AmazonMqSecurityGroup
+      IpProtocol: tcp
+      CidrIp: 0.0.0.0/0
+      FromPort: !Ref MqDataPort
+      ToPort: !Ref MqDataPort
+Outputs:
+  BrokerConnectionUrl:
+    Export:
+      Name: BrokerConnectionUrl
+    Value: !Join [",", !GetAtt AmazonMqBrokerInstance.OpenWireEndpoints]
