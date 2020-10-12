@@ -12,6 +12,6 @@
   register: output
 - name: "Get Amazon MQ Connection URL"
   set_fact:
-    amazon_mq_connection_url: "{{output.stack_outputs.BrokerConnectionUrl[0]}}"
+    amazon_mq_connection_url: "{{output.stack_outputs.BrokerConnectionUrl}}"
 - name: "Output Amazon MQ Connection URL"
   debug: msg="Amazon MQ Connection URL = {{ amazon_mq_connection_url }}"
