@@ -25,3 +25,32 @@
     - api
     - stats-api
     - stats-reporting
+- name: "Get the Load balancer URL for API application"
+  k8s_info:
+    api_version: v1
+    kind: Service
+    name: "{{eks_app_cluster_name}}-api-service"
+    namespace: "{{k8s_cache_cluster_namespace}}"
+  register: output-api
+  until: output-api.resources[0].status.loadBalancer.ingress is defined
+  retries: 10
+  delay: 10
+- name: "Get the Load balancer URL for Stats API application"
+  k8s_info:
+    api_version: v1
+    kind: Service
+    name: "{{eks_app_cluster_name}}-stats-api-service"
+    namespace: "{{k8s_cache_cluster_namespace}}"
+  register: output-stats-api
+  until: output-stats-api.resources[0].status.loadBalancer.ingress is defined
+  retries: 10
+  delay: 10
+- name: "Register the load balancer URLs"
+  set_fact:
+    api_lb_url: "{{output-api.resources[0].status.loadBalancer.ingress[0].hostname}}"
+    stats_api_lb_url: "{{output-stats-api.resources[0].status.loadBalancer.ingress[0].hostname}}"
+- name: "Print the load balancer URLs"
+  debug:
+    msg:
+      - "API Load Balancer URL = {{ api_lb_url }}"
+      - "Stats API Load Balancer URL = {{ stats_api_lb_url }}"
