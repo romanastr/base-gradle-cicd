@@ -6,10 +6,10 @@ plugins {
     `java-library`
     jacoco
     checkstyle
-    id("org.springframework.boot") version "2.2.6.RELEASE" apply false
-    id("io.spring.dependency-management") version "1.0.8.RELEASE" apply false
+    id("org.springframework.boot") version "2.3.4.RELEASE" apply false
+    id("io.spring.dependency-management") version "1.0.10.RELEASE" apply false
     id("org.flywaydb.flyway") version "6.5.0" apply false
-    id("com.google.cloud.tools.jib") version "2.5.0" apply false
+    id("com.google.cloud.tools.jib") version "2.6.0" apply false
 }
 
 allprojects {
@@ -30,8 +30,6 @@ subprojects {
     dependencies {
         compileOnly("org.projectlombok", "lombok")
         annotationProcessor("org.projectlombok", "lombok")
-        compileOnly("org.immutables", "value", "2.8.8")
-        annotationProcessor("org.immutables", "value", "2.8.8")
         testImplementation("org.springframework.boot", "spring-boot-starter-test") {
             exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
         }

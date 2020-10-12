@@ -33,10 +33,23 @@ spec:
         - name: "{{app_name}}"
           image: "{{aws_account_id}}.dkr.ecr.us-east-1.amazonaws.com/base-gradle-{{app_name}}:{{k8s_app_version}}"
           imagePullPolicy: Always
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: app-port
+            periodSeconds: 10
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: app-port
+            periodSeconds: 10
+            failureThreshold: 3
           envFrom:
             - configMapRef:
                 name: "{{eks_app_cluster_name}}-config-map"
             - secretRef:
                 name: "{{eks_app_cluster_name}}-secret"
           ports:
-            - containerPort: 8080
+            - name: app-port
+              containerPort: 8080
