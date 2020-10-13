@@ -3,6 +3,10 @@ package org.astroman.base.gradle.api.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.astroman.base.gradle.api.service.XkcdCaller.EXCEPTIONAL_RESPONSE;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyMap;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Map;
@@ -45,12 +49,14 @@ public class XkcdCallerTest {
 
   @Test
   public void testGetResponse() {
-    assertThat(xkcdCaller.getResponse(SAMPLE_NUM)).isEqualTo(SAMPLE_MAP);
+    assertThat(xkcdCaller.getAndReportResponse(SAMPLE_NUM)).isEqualTo(SAMPLE_MAP);
+    verify(messageReporter, times(1)).reportMessage(anyMap());
   }
 
   @Test
   public void testGetExceptionalResponse() {
-    assertThat(xkcdCaller.getResponse(EXCEPTIONAL_NUM)).isEqualTo(EXCEPTIONAL_RESPONSE);
+    assertThat(xkcdCaller.getAndReportResponse(EXCEPTIONAL_NUM)).isEqualTo(EXCEPTIONAL_RESPONSE);
+    verify(messageReporter, never()).reportMessage(anyMap());
   }
 
 }

@@ -31,7 +31,7 @@ public class ApiControllerTest {
   @BeforeEach
   public void init() {
     MockitoAnnotations.initMocks(this);
-    when(xkcdCaller.getResponse(SAMPLE_NUM)).thenReturn(SAMPLE_MAP);
+    when(xkcdCaller.getAndReportResponse(SAMPLE_NUM)).thenReturn(SAMPLE_MAP);
     doNothing().when(busyWaitService).busyWait();
   }
 

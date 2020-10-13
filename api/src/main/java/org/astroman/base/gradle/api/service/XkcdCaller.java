@@ -36,14 +36,13 @@ public class XkcdCaller {
    * @return key-value map metadata for XKCD comics.
    */
 
-  public Map<String, String> getResponse(int num) {
-    Map<String, String> flatMessage;
+  public Map<String, String> getAndReportResponse(int num) {
     if (EXCEPTIONAL_IDS.contains(num)) {
-      flatMessage = EXCEPTIONAL_RESPONSE;
-    } else {
-      flatMessage = getXckdResponse(num);
-      messageReporter.reportMessage(flatMessage);
+      return EXCEPTIONAL_RESPONSE;
     }
+
+    Map<String, String> flatMessage = getXckdResponse(num);
+    messageReporter.reportMessage(flatMessage);
     return flatMessage;
   }
 
