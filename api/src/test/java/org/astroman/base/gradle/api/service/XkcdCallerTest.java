@@ -1,6 +1,7 @@
 package org.astroman.base.gradle.api.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.astroman.base.gradle.api.service.XkcdCaller.EXCEPTIONAL_RESPONSE;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -19,6 +20,7 @@ import org.springframework.web.client.RestTemplate;
 public class XkcdCallerTest {
 
   private static final int SAMPLE_NUM = 200;
+  private static final int EXCEPTIONAL_NUM = 404;
   private static final Map<String, Object> SAMPLE_MAP = Map.of("sampleKey", "sampleValue");
 
   @InjectMocks
@@ -45,4 +47,10 @@ public class XkcdCallerTest {
   public void testGetResponse() {
     assertThat(xkcdCaller.getResponse(SAMPLE_NUM)).isEqualTo(SAMPLE_MAP);
   }
+
+  @Test
+  public void testGetExceptionalResponse() {
+    assertThat(xkcdCaller.getResponse(EXCEPTIONAL_NUM)).isEqualTo(EXCEPTIONAL_RESPONSE);
+  }
+
 }
