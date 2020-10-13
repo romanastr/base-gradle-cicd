@@ -26,7 +26,7 @@ public class ApiController {
     if (isBusyWait) {
       busyWaitService.busyWait();
     }
-    return xkcdCaller.getResponse(number);
+    return xkcdCaller.getAndReportResponse(number);
   }
 
 }
