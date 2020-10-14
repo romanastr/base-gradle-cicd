@@ -62,6 +62,20 @@ Resources:
               InputArtifacts:
                 - Name: SourceArtifact
               RunOrder: 1
+        -
+          Name: Deploy
+          Actions:
+            - Name: Deploy
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Provider: CodeBuild
+                Version: 1
+              Configuration:
+                ProjectName: !Ref CodeBuildDeploy
+              InputArtifacts:
+                - Name: SourceArtifact
+              RunOrder: 1
       ArtifactStore:
         Type: S3
         Location: !Ref CodePipelineArtifactStoreBucket
@@ -105,6 +119,25 @@ Resources:
       LogsConfig:
         CloudWatchLogs:
           GroupName: !Sub "/aws/codebuild/{{project_name}}-{{build_name_main}}-${Build}"
+          Status: ENABLED
+  CodeBuildDeploy:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Artifacts:
+        Type: CODEPIPELINE
+      Description: !Sub "Main ${Build} Deploy"
+      Environment:
+        ComputeType: "{{codebuild_compute_type}}"
+        Image: "{{codebuild_image}}"
+        Type: LINUX_CONTAINER
+      Name: !Sub "{{project_name}}-{{build_name_deploy}}-${Build}"
+      ServiceRole: "{{codebuild_role_arn}}"
+      Source:
+        Type: CODEPIPELINE
+        BuildSpec: operations/cicd/builds/roles/pipelines/files/buildspec-deploy.yml
+      LogsConfig:
+        CloudWatchLogs:
+          GroupName: !Sub "/aws/codebuild/{{project_name}}-{{build_name_deploy}}-${Build}"
           Status: ENABLED
   LogsLogGroupMain:
     Type: AWS::Logs::LogGroup

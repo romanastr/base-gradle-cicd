@@ -4,6 +4,7 @@ project_name: Gradle-CICD
 source_artifact_bucket_name: codebuild-trigger
 source_artifact_key: Sources.zip
 build_name_main: Build-Main
+build_name_deploy: Deploy-Main
 build_name_status: Build-Status
 build_name_trigger: Build-Trigger
 build_ci_suffix: CI

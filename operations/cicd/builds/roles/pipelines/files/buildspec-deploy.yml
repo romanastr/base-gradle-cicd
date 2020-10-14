@@ -1,0 +1,13 @@
+version: 0.2
+env:
+  shell: bash
+phases:
+  install:
+    runtime-versions:
+      python: 3.7
+    commands:
+      - pip install -r operations/requirements.txt -q
+  build:
+    commands:
+      - cd operations
+      - ansible-playbook -i inventories/dev/hosts apps/deploy/app-deployment.yml
