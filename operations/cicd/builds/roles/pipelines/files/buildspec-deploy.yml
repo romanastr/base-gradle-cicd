@@ -6,9 +6,12 @@ phases:
     runtime-versions:
       python: 3.8
     commands:
-      - pip3 install -r operations/requirements.txt
+      - python3 -m pip install -r operations/requirements.txt
   build:
     commands:
-      - ansible --version
+      - printenv
+      - ansible-playbook --version
+      - which ansible-playbook
+      - cat `which ansible-playbook` | head -n 5
       - cd operations
-      - ansible-playbook -i inventories/dev/hosts apps/deploy/app-deployment.yml -e 'ansible_python_interpreter=/usr/bin/python3'
+      - ansible-playbook -vvv -i inventories/dev/hosts apps/deploy/app-deployment.yml -e 'ansible_python_interpreter=/usr/bin/python3'
