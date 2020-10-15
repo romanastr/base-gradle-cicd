@@ -19,8 +19,8 @@ Resources:
         Statement:
           - Effect: Allow
             Action:
-              - logs:CreateLogStream
-              - logs:PutLogEvents
+              - logs:Cr*
+              - logs:Pu*
             Resource: "arn:aws:logs:*:*:*"
           - Effect: Allow
             Action:
