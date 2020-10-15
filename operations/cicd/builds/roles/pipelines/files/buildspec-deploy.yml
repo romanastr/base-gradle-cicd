@@ -6,10 +6,15 @@ phases:
     runtime-versions:
       python: 3.8
     commands:
-      - python3 -m pip install -r operations/requirements.txt
+      - pip install -r operations/requirements.txt
   build:
     commands:
       - printenv
+      - python --version
+      - python3 --version
+      - pip --version
+      - which python
+      - which python3
       - ansible-playbook --version
       - which ansible-playbook
       - cat `which ansible-playbook` | head -n 5
