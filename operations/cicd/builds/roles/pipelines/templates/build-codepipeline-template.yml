@@ -36,6 +36,20 @@ Resources:
                 S3ObjectKey: "{{source_artifact_key}}"
               RunOrder: 1
         -
+          Name: Deploy
+          Actions:
+            - Name: Deploy
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Provider: CodeBuild
+                Version: 1
+              Configuration:
+                ProjectName: !Ref CodeBuildDeploy
+              InputArtifacts:
+                - Name: SourceArtifact
+              RunOrder: 1
+        -
           Name: Build
           Actions:
             - Name: Build
@@ -59,20 +73,6 @@ Resources:
                 Version: 1
               Configuration:
                 ProjectName: !Ref CodeBuildStatus
-              InputArtifacts:
-                - Name: SourceArtifact
-              RunOrder: 1
-        -
-          Name: Deploy
-          Actions:
-            - Name: Deploy
-              ActionTypeId:
-                Category: Build
-                Owner: AWS
-                Provider: CodeBuild
-                Version: 1
-              Configuration:
-                ProjectName: !Ref CodeBuildDeploy
               InputArtifacts:
                 - Name: SourceArtifact
               RunOrder: 1
