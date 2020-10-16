@@ -17,4 +17,5 @@ phases:
       - which ansible-playbook
       - cat `which ansible-playbook` | head -n 5
       - cd operations
-      - ansible-playbook -vv -i inventories/dev/hosts apps/deploy/app-deployment.yml -e 'ansible_python_interpreter=/root/.pyenv/shims/python3'
+      - ln -sf `which python3` /usr/bin/python
+      - ansible-playbook -vv -i inventories/dev/hosts apps/deploy/app-deployment.yml
