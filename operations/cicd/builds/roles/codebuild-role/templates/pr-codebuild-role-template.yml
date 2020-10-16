@@ -24,12 +24,18 @@ Resources:
             Resource: "arn:aws:logs:*:*:*"
           - Effect: Allow
             Action:
-              - s3:*
+              - cloudformation:*
               - codebuild:*
               - codepipeline:*
-              - ssm:Get*
               - ecr:*
-              - cloudformation:*
+              - ec2:*
+              - eks:*
+              - iam:*
+              - kms:*
+              - mq:*
+              - rds:*
+              - s3:*
+              - ssm:*
             Resource: "*"
       Roles:
         - !Ref CodeBuildRole
