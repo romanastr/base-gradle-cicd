@@ -1,5 +1,5 @@
-ansible==2.9.6
-boto3==1.14.47
-botocore==1.17.47
+ansible~=2.10
+boto3
+botocore
 kubernetes==11.0.0
 openshift==0.11.2

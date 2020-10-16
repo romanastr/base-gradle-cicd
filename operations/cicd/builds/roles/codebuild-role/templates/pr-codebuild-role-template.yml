@@ -19,16 +19,23 @@ Resources:
         Statement:
           - Effect: Allow
             Action:
-              - logs:CreateLogStream
-              - logs:PutLogEvents
+              - logs:Cr*
+              - logs:Pu*
             Resource: "arn:aws:logs:*:*:*"
           - Effect: Allow
             Action:
-              - s3:*
+              - cloudformation:*
               - codebuild:*
               - codepipeline:*
-              - ssm:Get*
               - ecr:*
+              - ec2:*
+              - eks:*
+              - iam:*
+              - kms:*
+              - mq:*
+              - rds:*
+              - s3:*
+              - ssm:*
             Resource: "*"
       Roles:
         - !Ref CodeBuildRole

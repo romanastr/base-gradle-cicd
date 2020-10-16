@@ -1,0 +1,13 @@
+version: 0.2
+phases:
+  install:
+    runtime-versions:
+      python: 3.8
+    commands:
+      - pip3 install -r operations/requirements.txt -q
+  build:
+    commands:
+      - printenv
+      - ln -sf `which python3` /usr/bin/python # python link for ansible
+      - cd operations
+      - ansible-playbook -i inventories/dev/hosts apps/deploy/app-deployment.yml
