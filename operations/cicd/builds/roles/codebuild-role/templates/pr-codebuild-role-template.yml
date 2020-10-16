@@ -29,6 +29,7 @@ Resources:
               - codepipeline:*
               - ssm:Get*
               - ecr:*
+              - cloudformation:*
             Resource: "*"
       Roles:
         - !Ref CodeBuildRole
