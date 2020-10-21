@@ -32,6 +32,7 @@ Resources:
               - eks:*
               - iam:*
               - kms:*
+              - lambda:*
               - mq:*
               - rds:*
               - s3:*
