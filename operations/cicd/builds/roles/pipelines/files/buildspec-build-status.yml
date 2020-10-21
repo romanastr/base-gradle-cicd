@@ -47,6 +47,6 @@ phases:
          --data-raw '{
            "state": "'"$TARGET_STATE"'",
            "target_url": "'"$TARGET_URL"'",
-           "description": "The status of "'"$PIPELINE_ACTION"'",
+           "description": "The status of '"$PIPELINE_ACTION"'",
            "context": "'"$GITHUB_CHECK_NAME"'"
          }'
