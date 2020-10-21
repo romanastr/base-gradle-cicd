@@ -59,7 +59,9 @@ Resources:
                 Version: 1
               Configuration:
                 ProjectName: !Ref CodeBuildStatus
-#                EnvironmentVariables: '[{"name":"TEST_VARIABLE","value":"TEST_VALUE","type":"PLAINTEXT"},{"name":"ParamStoreTest","value":"PARAMETER_NAME","type":"PARAMETER_STORE"}]'
+                EnvironmentVariables: >-
+                 [{"name":"PIPELINE_ACTION","value":"Build","type":"PLAINTEXT"},
+                  {"name":"GITHUB_CHECK_NAME","value":"pr-build-unit-tests","type":"PLAINTEXT"}]
               InputArtifacts:
                 - Name: SourceArtifact
               RunOrder: 1

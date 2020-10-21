@@ -5,15 +5,16 @@ phases:
   build:
     commands:
       - printenv
+      - echo PIPELINE_ACTION = "$PIPELINE_ACTION"
       - SHA=$(cat .git/HEAD); echo SHA = "$SHA"
       - PIPELINE_ID=$(aws codepipeline get-pipeline-state --name ${CODEBUILD_INITIATOR#codepipeline/} --query 'stageStates[?actionStates[?latestExecution.externalExecutionId==`'${CODEBUILD_BUILD_ID}'`]].latestExecution.pipelineExecutionId' --output text); echo PIPELINE_ID = "$PIPELINE_ID"
       - |
         # wait till Build completes
         while true; do
           sleep 5; echo Retrying;
-          aws codepipeline list-action-executions --pipeline-name=${CODEBUILD_INITIATOR#codepipeline/} --filter="pipelineExecutionId=$PIPELINE_ID" --query 'actionExecutionDetails[?actionName==`Build`].status' --output text | grep -E "Succeeded|Failed" && break
+          aws codepipeline list-action-executions --pipeline-name=${CODEBUILD_INITIATOR#codepipeline/} --filter="pipelineExecutionId=$PIPELINE_ID" --query 'actionExecutionDetails[?actionName==`'$PIPELINE_ACTION'`].status' --output text | grep -E "Succeeded|Failed" && break
         done
-      - BUILD_EXECUTION_ID=$(aws codepipeline list-action-executions --pipeline-name=${CODEBUILD_INITIATOR#codepipeline/} --filter="pipelineExecutionId=$PIPELINE_ID" --query 'actionExecutionDetails[?actionName==`Build`].output.executionResult.externalExecutionId' --output text); echo BUILD_EXECUTION_ID = "$BUILD_EXECUTION_ID"
+      - BUILD_EXECUTION_ID=$(aws codepipeline list-action-executions --pipeline-name=${CODEBUILD_INITIATOR#codepipeline/} --filter="pipelineExecutionId=$PIPELINE_ID" --query 'actionExecutionDetails[?actionName==`'$PIPELINE_ACTION'`].output.executionResult.externalExecutionId' --output text); echo BUILD_EXECUTION_ID = "$BUILD_EXECUTION_ID"
       - BUILD_ARN=$(aws codebuild batch-get-builds --ids "$BUILD_EXECUTION_ID" --query 'builds[0].arn' --output text); echo BUILD_ARN = "$BUILD_ARN"
       - ACCOUNT=$(echo "$BUILD_ARN" | cut -d":" -f5); echo ACCOUNT = "$ACCOUNT"
       - BUILD_STATUS=$(aws codebuild batch-get-builds --ids "$BUILD_EXECUTION_ID" --query 'builds[0].phases[?phaseType==`BUILD`].phaseStatus' --output text); echo BUILD_STATUS = "$BUILD_STATUS"
@@ -28,7 +29,7 @@ phases:
         fi
       - |
         # Figure out the appropriate build or report URL to send to GitHub
-        if [[ $BUILD_STATUS = "SUCCEEDED" ]]; then
+        if [[ $BUILD_STATUS = "SUCCEEDED" && -n $REPORT_ARN && $REPORT_ARN != None ]]; then
           REPORT_GROUP=$(echo $REPORT_ARN | cut -d":" -f6 | cut -d"/" -f2); echo "$REPORT_GROUP"
           REPORT_GROUP_ID=$(echo $REPORT_ARN | cut -d":" -f7); echo "$REPORT_GROUP_ID"
           REPORT_URL=https://console.aws.amazon.com/codesuite/codebuild/$ACCOUNT/testReports/reports/$REPORT_GROUP/$REPORT_GROUP:$REPORT_GROUP_ID
@@ -39,7 +40,7 @@ phases:
           TARGET_URL="$BUILD_URL"; echo TARGET_URL = "$TARGET_URL"
         fi
       - |
-        # Make a GitHub satus call
+        # Make a GitHub status call
         curl --location --request POST 'https://api.github.com/repos/romanastr/base-gradle-cicd/statuses/'"$SHA" \
          --header 'Content-Type: application/x-www-form-urlencoded' \
          -u 'romanastr:'"$GITHUB_TOKEN" \
@@ -47,5 +48,5 @@ phases:
            "state": "'"$TARGET_STATE"'",
            "target_url": "'"$TARGET_URL"'",
            "description": "The status of build & unit tests",
-           "context": "pr-build-unit-tests"
+           "context": "'$GITHUB_CHECK_NAME'"
          }'
