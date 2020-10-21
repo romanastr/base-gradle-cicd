@@ -60,8 +60,8 @@ Resources:
               Configuration:
                 ProjectName: !Ref CodeBuildStatus
                 EnvironmentVariables: >-
-                - '[{"name":"PIPELINE_ACTION","value":"Build","type":"PLAINTEXT"},'
-                - '{"name":"GITHUB_CHECK_NAME","value":"pr-build-unit-tests","type":"PLAINTEXT"}]'
+                 [{"name":"PIPELINE_ACTION","value":"Build","type":"PLAINTEXT"},
+                  {"name":"GITHUB_CHECK_NAME","value":"pr-build-unit-tests","type":"PLAINTEXT"}]
               InputArtifacts:
                 - Name: SourceArtifact
               RunOrder: 1
