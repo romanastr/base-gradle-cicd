@@ -79,18 +79,20 @@ Resources:
               InputArtifacts:
                 - Name: SourceArtifact
               RunOrder: 1
-      #            - Name: DeployStatus
-      #              ActionTypeId:
-      #                Category: Build
-      #                Owner: AWS
-      #                Provider: CodeBuild
-      #                Version: 1
-      #              Configuration:
-      #                ProjectName: !Ref CodeBuildStatus
-      #                EnvironmentVariables: '[{"name":"TEST_VARIABLE","value":"TEST_VALUE","type":"PLAINTEXT"},{"name":"ParamStoreTest","value":"PARAMETER_NAME","type":"PARAMETER_STORE"}]'
-      #              InputArtifacts:
-      #                - Name: SourceArtifact
-      #              RunOrder: 1
+            - Name: DeployStatus
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Provider: CodeBuild
+                Version: 1
+              Configuration:
+                ProjectName: !Ref CodeBuildStatus
+                EnvironmentVariables: >-
+                 [{"name":"PIPELINE_ACTION","value":"Deploy","type":"PLAINTEXT"},
+                  {"name":"GITHUB_CHECK_NAME","value":"pr-deploy-load-tests","type":"PLAINTEXT"}]
+              InputArtifacts:
+                - Name: SourceArtifact
+              RunOrder: 1
       ArtifactStore:
         Type: S3
         Location: !Ref CodePipelineArtifactStoreBucket
