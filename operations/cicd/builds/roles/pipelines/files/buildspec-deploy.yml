@@ -1,4 +1,6 @@
 version: 0.2
+env:
+  shell: bash
 phases:
   install:
     runtime-versions:
@@ -6,6 +8,7 @@ phases:
     commands:
       - pip3 install -r operations/requirements.txt -q
       - aws secretsmanager get-secret-value --secret-id dev/ansible --query 'SecretString' --output text | jq -r '.vaultSecret' > ~/vault-pass
+      - chmod +x gradlew
   build:
     commands:
       - printenv
@@ -14,4 +17,5 @@ phases:
       - ansible-playbook -i inventories/dev/hosts apps/deploy/app-deployment.yml --vault-password-file ~/vault-pass
   post_build:
     commands:
-      - /bin/true
+      - ./gradlew gatlingRun-ApiSimulation
+      - ./gradlew gatlingRun-StatsApiSimulation

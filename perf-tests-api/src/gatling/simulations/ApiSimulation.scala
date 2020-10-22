@@ -3,12 +3,12 @@ import io.gatling.http.Predef._
 
 import scala.util.Random
 
-class ApiSimulation extends Simulation {
+class ApiSimulation extends EnvSimulation {
   private val maxNum = 2330
-  private val apiHostname = System.getProperty("api.hostname", "localhost")
-  private val apiPort = System.getProperty("api.port", "8080")
-  private val totalRepeats = System.getProperty("api.repeats", "12").toInt
-  private val testThreads = System.getProperty("api.threads", "3").toInt
+  private val apiHostname = getEnv("API_HOSTNAME", "localhost")
+  private val apiPort = getEnv("API_PORT", "8080")
+  private val totalRepeats = getEnv("API_REPEATS", "12").toInt
+  private val testThreads = getEnv("API_THREADS", "3").toInt
 
   private val httpConf = http.baseUrl("http://" + apiHostname + ":" + apiPort)
 
@@ -30,6 +30,9 @@ class ApiSimulation extends Simulation {
 
   setUp(scn.inject(atOnceUsers(testThreads))
     .protocols(httpConf))
-    .assertions(forAll.failedRequests.count.is(0))
+    .assertions(
+      global.successfulRequests.percent.is(100),
+      global.requestsPerSec.gt(6)
+    )
 
 }

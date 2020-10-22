@@ -89,3 +89,6 @@ k8s_app_container_port: 8080
 lambda_delete_name: DeleteCFNStacksLambda
 
 shared_folder: ../../../../common/templates
+
+api_lb_url_prefix: dev/API_HOSTNAME
+stats_api_lb_url_prefix: dev/STATS_API_HOSTNAME
