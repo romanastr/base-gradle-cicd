@@ -56,5 +56,5 @@
       - "Stats API Load Balancer URL = {{ stats_api_lb_url }}"
 - name : "Upload load balancer names to SSM"
   shell: |
-    aws ssm put-parameter --name "dev/API_HOSTNAME_PR" --type String --value "{{api_lb_url}}" --overwrite
-    aws ssm put-parameter --name "{{stats_api_lb_url_prefix}}_$BUILD" --type String --value "{{stats_api_lb_url}}" --overwrite
+    aws ssm put-parameter --name "{{api_lb_url_prefix}}_${BUILD:-LOCAL}" --type String --value "{{api_lb_url}}" --overwrite
+    aws ssm put-parameter --name "{{stats_api_lb_url_prefix}}_${BUILD:-LOCAL}" --type String --value "{{stats_api_lb_url}}" --overwrite
