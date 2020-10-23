@@ -148,12 +148,6 @@ Resources:
         Image: "{{codebuild_image}}"
         Type: LINUX_CONTAINER
         EnvironmentVariables:
-          - Name: API_HOSTNAME
-            Value: !Sub "{{api_lb_url_prefix}}_${Build}"
-            Type: PARAMETER_STORE
-          - Name: STATS_API_HOSTNAME
-            Value: !Sub "{{stats_api_lb_url_prefix}}_${Build}"
-            Type: PARAMETER_STORE
           - Name: BUILD
             Value: !Ref Build
           - Name: API_PORT

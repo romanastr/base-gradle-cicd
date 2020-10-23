@@ -16,5 +16,7 @@ phases:
       - ansible-playbook -i operations/inventories/dev/hosts operations/apps/deploy/app-deployment.yml --vault-password-file ~/vault-pass
   post_build:
     commands:
+      - API_HOSTNAME=$(aws ssm get-parameter --name=/dev/API_HOSTNAME_"$BUILD" --query='Parameter.Value' --output text);
+      - STATS_API_HOSTNAME=$(aws ssm get-parameter --name=/dev/STATS_API_HOSTNAME_"$BUILD" --query='Parameter.Value' --output text)
       - ./gradlew gatlingRun-ApiSimulation
       - ./gradlew gatlingRun-StatsApiSimulation
