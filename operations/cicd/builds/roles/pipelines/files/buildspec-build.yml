@@ -15,7 +15,7 @@ phases:
   post_build:
     commands:
       - next runGradle test
-      - next ifCI runGradle jib
+      - next runGradle jib
 reports:
   GradleCICDReportGroup:
     files:
