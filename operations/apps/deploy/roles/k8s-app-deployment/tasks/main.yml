@@ -11,6 +11,13 @@
   k8s:
     definition: "{{ lookup('template', 'configMap-secret-stack.yml')}}"
     namespace: "{{k8s_app_cluster_namespace}}"
+- name: "Clean up previous flyway definition"
+  k8s:
+    name: "{{eks_app_cluster_name}}-flyway-job"
+    api_version: batch/v1
+    kind: Job
+    namespace: "{{k8s_app_cluster_namespace}}"
+    state: absent
 - name: "Run flyway"
   k8s:
     definition: "{{ lookup('template', 'flyway-job.yml')}}"
