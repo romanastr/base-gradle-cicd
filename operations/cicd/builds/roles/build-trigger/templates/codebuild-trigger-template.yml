@@ -39,12 +39,12 @@ Resources:
         ReportBuildStatus: true
         BuildStatusConfig:
           Context: pr-trigger
-        BuildSpec: |
+        BuildSpec: !Sub |
           version: 0.2
           phases:
             build:
               commands:
-                - echo export BUILD_TAG=v`date +%F`-`cat .git/HEAD | cut -c -6` > build_tag_source.sh
+                - echo export BUILD_TAG=v`date +%F`-${Build}-`cat .git/HEAD | cut -c -6` > build_tag_source.sh
                 - zip -r {{source_artifact_key}} .
           artifacts:
             files:
