@@ -31,7 +31,7 @@ spec:
     spec:
       containers:
         - name: "{{app_name}}"
-          image: "{{aws_account_id}}.dkr.ecr.us-east-1.amazonaws.com/base-gradle-{{app_name}}:{{k8s_app_version}}"
+          image: "{{aws_account_id}}.dkr.ecr.us-east-1.amazonaws.com/base-gradle-{{app_name}}:{{build_tag}}"
           imagePullPolicy: Always
           livenessProbe:
             httpGet:

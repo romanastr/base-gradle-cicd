@@ -7,7 +7,7 @@ spec:
     spec:
       containers:
         - name: "{{aws_account_id}}"
-          image: "{{aws_account_id}}.dkr.ecr.us-east-1.amazonaws.com/base-gradle-flyway:{{k8s_app_version}}"
+          image: "{{aws_account_id}}.dkr.ecr.us-east-1.amazonaws.com/base-gradle-flyway:{{build_tag}}"
           args:
             - migrate
           env:

@@ -15,12 +15,15 @@
   k8s:
     definition: "{{ lookup('template', 'flyway-job.yml')}}"
     namespace: "{{k8s_app_cluster_namespace}}"
+  vars:
+    build_tag: "$BUILD_TAG"
 - name: "Deploy app stack"
   k8s:
     definition: "{{ lookup('template', 'deploy-app-stack.yml')}}"
     namespace: "{{k8s_app_cluster_namespace}}"
   vars:
     app_name: "{{item}}"
+    build_tag: "$BUILD_TAG"
   with_items:
     - api
     - stats-api

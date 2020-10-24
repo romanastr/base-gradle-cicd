@@ -14,7 +14,7 @@ plugins {
 
 allprojects {
     group = "org.astroman.base.gradle"
-    version = "1.0"
+    version = System.getenv("BUILD_TAG") ?: "1.0"
     repositories {
         mavenCentral()
         gradlePluginPortal()
