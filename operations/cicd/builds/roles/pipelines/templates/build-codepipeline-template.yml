@@ -147,6 +147,21 @@ Resources:
         ComputeType: "{{codebuild_compute_type}}"
         Image: "{{codebuild_image}}"
         Type: LINUX_CONTAINER
+        EnvironmentVariables:
+          - Name: BUILD
+            Value: !Ref Build
+          - Name: API_PORT
+            Value: 80
+          - Name: STATS_API_PORT
+            Value: 80
+          - Name: API_REPEATS
+            Value: 1000
+          - Name: STATS_API_REPEATS
+            Value: 10000
+          - Name: API_THREADS
+            Value: 10
+          - Name: STATS_API_THREADS
+            Value: 10
       Name: !Sub "{{project_name}}-{{build_name_deploy}}-${Build}"
       ServiceRole: "{{codebuild_role_arn}}"
       Source:
