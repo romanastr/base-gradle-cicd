@@ -157,7 +157,7 @@ Resources:
           - Name: API_REPEATS
             Value: 1000
           - Name: STATS_API_REPEATS
-            Value: 1000
+            Value: 10000
           - Name: API_THREADS
             Value: 10
           - Name: STATS_API_THREADS

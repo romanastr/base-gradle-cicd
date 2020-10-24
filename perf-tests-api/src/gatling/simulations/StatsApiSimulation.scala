@@ -9,6 +9,7 @@ class StatsApiSimulation extends EnvSimulation {
   private val apiPort = getEnv("STATS_API_PORT", "8081")
   private val totalRepeats = getEnv("STATS_API_REPEATS", "12").toInt
   private val testThreads = getEnv("STATS_API_THREADS", "3").toInt
+  private val threshold = getEnv("STATS_API_THRESHOLD", "200").toInt
 
   private val httpConf = http.baseUrl("http://" + apiHostname + ":" + apiPort)
 
@@ -31,7 +32,7 @@ class StatsApiSimulation extends EnvSimulation {
     .protocols(httpConf))
     .assertions(
       global.successfulRequests.percent.is(100),
-      global.requestsPerSec.gt(6)
+      global.requestsPerSec.gt(threshold)
     )
 
 }
