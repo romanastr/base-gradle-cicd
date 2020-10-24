@@ -9,6 +9,7 @@ phases:
       - pip3 install -r operations/requirements.txt -q
       - aws secretsmanager get-secret-value --secret-id dev/ansible --query 'SecretString' --output text | jq -r '.vaultSecret' > ~/vault-pass
       - chmod +x gradlew
+      - source build_tag_source.sh
   build:
     commands:
       - printenv
