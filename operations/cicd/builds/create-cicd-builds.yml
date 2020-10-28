@@ -6,4 +6,5 @@
     - codebuild-role
     - codepipeline-role
     - build-trigger
+    - docker-repos
     - pipelines

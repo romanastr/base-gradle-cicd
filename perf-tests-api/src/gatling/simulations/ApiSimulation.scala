@@ -22,11 +22,13 @@ class ApiSimulation extends EnvSimulation {
   private val scn = scenario("API simulation")
     .repeat(totalRepeats / testThreads) {
       feed(feeder)
-        .exec(http("API call")
-          .get("/api")
-          .queryParam("busywait", true)
-          .queryParam("number", "${num}")
-          .check(status.is(200)))
+        .tryMax(2) {
+          exec(http("API call")
+            .get("/api")
+            .queryParam("busywait", true)
+            .queryParam("number", "${num}")
+            .check(status.is(200)))
+        }
     }
 
   setUp(scn.inject(atOnceUsers(testThreads))

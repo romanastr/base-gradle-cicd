@@ -50,6 +50,12 @@ subprojects {
         configFile = rootProject.file("config/google_checks.xml")
     }
 
+    tasks.processResources {
+        filesMatching("**/version.properties") {
+            expand(Pair("BUILD_TAG", project.version))
+        }
+    }
+
     apply(plugin = "jacoco")
     tasks.test {
         useJUnitPlatform()
@@ -133,7 +139,7 @@ configure(subprojects.filter { it.name in listOf("api", "flyway", "stats-api", "
             extraDirectories {
                 paths {
                     path {
-                        setFrom("src/main/resources/db/migration")
+                        setFrom("build/resources/main/db/migration")
                         into = "/flyway/sql"
                     }
                 }
@@ -156,18 +162,7 @@ configure(subprojects.filter { it.name in listOf("api", "flyway", "stats-api", "
         }
     }
 
-    tasks.register("create-repo") {
-        //create ECR repositories, if not exist
-        println("Creating ECR repo for project ${project.name}")
-        project.exec {
-            executable = "aws"
-            args = listOf("ecr", "create-repository", "--repository-name", "base-gradle-${project.name}")
-            isIgnoreExitValue = true
-        }
-    }
-
     tasks.named("jib") {
         dependsOn(rootProject.tasks.named("docker-login"))
-        dependsOn(tasks.named("create-repo"))
     }
 }

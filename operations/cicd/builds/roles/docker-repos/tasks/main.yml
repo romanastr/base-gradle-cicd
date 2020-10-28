@@ -1,0 +1,10 @@
+- name: "Create ECR repositories"
+  shell: |
+    EXISTS=$(aws ecr describe-repositories --repository-names=base-gradle-{{item}} --output text)
+    if [[ -z $EXISTS ]] ; then aws ecr create-repository --repository-name base-gradle-{{item}} --image-tag-mutability MUTABLE; fi
+    aws ecr put-lifecycle-policy --repository-name=base-gradle-{{item}} --lifecycle-policy-text='{{ lookup("template", "ecr-lifecycle-policy.json") }}'
+  with_items:
+    - api
+    - stats-api
+    - stats-reporting
+    - flyway

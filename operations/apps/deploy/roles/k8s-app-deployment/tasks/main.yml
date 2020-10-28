@@ -1,3 +1,5 @@
+- name: Print build tag
+  debug: msg="Deploying images with tag {{ lookup('env', 'BUILD_TAG') }}"
 - name: "Update EKS app cluster config"
   shell: |
     aws eks --region "{{aws_region}}" update-kubeconfig --name "{{eks_app_cluster_name}}"
@@ -23,14 +25,14 @@
     definition: "{{ lookup('template', 'flyway-job.yml')}}"
     namespace: "{{k8s_app_cluster_namespace}}"
   vars:
-    build_tag: "$BUILD_TAG"
+    build_tag: "{{ lookup('env', 'BUILD_TAG') }}"
 - name: "Deploy app stack"
   k8s:
     definition: "{{ lookup('template', 'deploy-app-stack.yml')}}"
     namespace: "{{k8s_app_cluster_namespace}}"
   vars:
     app_name: "{{item}}"
-    build_tag: "$BUILD_TAG"
+    build_tag: "{{ lookup('env', 'BUILD_TAG') }}"
   with_items:
     - api
     - stats-api

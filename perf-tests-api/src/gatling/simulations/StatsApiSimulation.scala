@@ -22,10 +22,12 @@ class StatsApiSimulation extends EnvSimulation {
   private val scn = scenario("Stats API simulation")
     .repeat(totalRepeats / testThreads) {
       feed(feeder)
-        .exec(http("Stats API call")
-          .get("/stats")
-          .queryParam("count", "${count}")
-          .check(status.is(200)))
+        .tryMax(2) {
+          exec(http("Stats API call")
+            .get("/stats")
+            .queryParam("count", "${count}")
+            .check(status.is(200)))
+        }
     }
 
   setUp(scn.inject(atOnceUsers(testThreads))
