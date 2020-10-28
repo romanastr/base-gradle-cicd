@@ -10,6 +10,10 @@ Resources:
             Effect: Allow
             Principal:
               Service: codebuild.amazonaws.com
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              AWS: "{{aws_admin_user}}"
   CodeBuildPrPolicy:
     Type: AWS::IAM::Policy
     Properties:
