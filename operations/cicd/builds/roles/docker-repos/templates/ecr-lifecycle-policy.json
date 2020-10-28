@@ -5,7 +5,7 @@
       "description": "Expire CI images older than 14 days",
       "selection": {
         "tagStatus": "tagged",
-        "tagPrefixList": ["{{build_ci_suffix}}"],
+        "tagPrefixList": ["CI"],
         "countType": "sinceImagePushed",
         "countUnit": "days",
         "countNumber": 14
@@ -19,7 +19,7 @@
       "description": "Expire PR images older than 5 days",
       "selection": {
         "tagStatus": "tagged",
-        "tagPrefixList": ["{{build_pr_suffix}}"],
+        "tagPrefixList": ["PR"],
         "countType": "sinceImagePushed",
         "countUnit": "days",
         "countNumber": 5
