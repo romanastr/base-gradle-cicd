@@ -17,7 +17,18 @@ phases:
       - ansible-playbook -i operations/inventories/dev/hosts operations/apps/deploy/app-deployment.yml --vault-password-file ~/vault-pass
   post_build:
     commands:
+      - #####   Setup environmental variables from SSM  #####
       - API_HOSTNAME=$(aws ssm get-parameter --name=/dev/API_HOSTNAME_"$BUILD" --query='Parameter.Value' --output text);
       - STATS_API_HOSTNAME=$(aws ssm get-parameter --name=/dev/STATS_API_HOSTNAME_"$BUILD" --query='Parameter.Value' --output text)
+      - #####   Run load tests  #####
       - ./gradlew gatlingRun-ApiSimulation
       - ./gradlew gatlingRun-StatsApiSimulation
+      - #####   Promote Image   #####
+      - |
+        for APPLICATION in api stats-api stats-reporting flyway
+        do
+          echo "Promoting application base-gradle-$APPLICATION"
+          docker pull $ACCOUNT.dkr.ecr.us-east-1.amazonaws.com/base-gradle-$APPLICATION:$BUILD_TAG
+          docker tag $ACCOUNT.dkr.ecr.us-east-1.amazonaws.com/base-gradle-$APPLICATION:$BUILD_TAG $ACCOUNT.dkr.ecr.us-east-1.amazonaws.com/prod-base-gradle-$APPLICATION:$BUILD_TAG
+          docker push $ACCOUNT.dkr.ecr.us-east-1.amazonaws.com/prod-base-gradle-$APPLICATION:$BUILD_TAG
+        done

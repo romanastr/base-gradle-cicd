@@ -1,8 +1,18 @@
-- name: "Create ECR repositories"
+- name: "Create ECR dev repositories"
   shell: |
-    EXISTS=$(aws ecr describe-repositories --repository-names=base-gradle-{{item}} --output text)
+    EXISTS=$(aws ecr describe-repositories --repository-names base-gradle-{{item}} --output text)
     if [[ -z $EXISTS ]] ; then aws ecr create-repository --repository-name base-gradle-{{item}} --image-tag-mutability MUTABLE; fi
-    aws ecr put-lifecycle-policy --repository-name=base-gradle-{{item}} --lifecycle-policy-text='{{ lookup("template", "ecr-lifecycle-policy.json") }}'
+    aws ecr put-lifecycle-policy --repository-name=base-gradle-{{item}} --lifecycle-policy-text='{{ lookup("template", "ecr-lifecycle-dev-policy.json") }}'
+  with_items:
+    - api
+    - stats-api
+    - stats-reporting
+    - flyway
+- name: "Create ECR PROD repositories"
+  shell: |
+    EXISTS=$(aws ecr describe-repositories --repository-names prod-base-gradle-{{item}} --output text)
+    if [[ -z $EXISTS ]] ; then aws ecr create-repository --repository-name prod-base-gradle-{{item}} --image-tag-mutability IMMUTABLE; fi
+    aws ecr put-lifecycle-policy --repository-name=prod-base-gradle-{{item}} --lifecycle-policy-text='{{ lookup("template", "ecr-lifecycle-prod-policy.json") }}'
   with_items:
     - api
     - stats-api

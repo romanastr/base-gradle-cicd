@@ -16,7 +16,6 @@ phases:
         done
       - BUILD_EXECUTION_ID=$(aws codepipeline list-action-executions --pipeline-name=${CODEBUILD_INITIATOR#codepipeline/} --filter="pipelineExecutionId=$PIPELINE_ID" --query 'actionExecutionDetails[?actionName==`'$PIPELINE_ACTION'`].output.executionResult.externalExecutionId' --output text); echo BUILD_EXECUTION_ID = "$BUILD_EXECUTION_ID"
       - BUILD_ARN=$(aws codebuild batch-get-builds --ids "$BUILD_EXECUTION_ID" --query 'builds[0].arn' --output text); echo BUILD_ARN = "$BUILD_ARN"
-      - ACCOUNT=$(echo "$BUILD_ARN" | cut -d":" -f5); echo ACCOUNT = "$ACCOUNT"
       - BUILD_STATUS=$(aws codebuild batch-get-builds --ids "$BUILD_EXECUTION_ID" --query 'builds[0].phases[?phaseType==`BUILD`].phaseStatus' --output text); echo BUILD_STATUS = "$BUILD_STATUS"
       - TEST_STATUS=$(aws codebuild batch-get-builds --ids "$BUILD_EXECUTION_ID" --query 'builds[0].phases[?phaseType==`POST_BUILD`].phaseStatus' --output text); echo TEST_STATUS = "$TEST_STATUS"
       - REPORT_ARN=$(aws codebuild batch-get-builds --ids "$BUILD_EXECUTION_ID" --query 'builds[0].reportArns[0]' --output text); echo REPORT_ARN = "$REPORT_ARN"

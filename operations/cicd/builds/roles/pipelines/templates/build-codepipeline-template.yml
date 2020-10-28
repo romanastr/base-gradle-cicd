@@ -127,7 +127,6 @@ Resources:
             Type: PARAMETER_STORE
           - Name: BUILD
             Value: !Ref Build
-            Type: PLAINTEXT
       Name: !Sub "{{project_name}}-{{build_name_main}}-${Build}"
       ServiceRole: "{{codebuild_role_arn}}"
       Source:
@@ -148,6 +147,8 @@ Resources:
         Image: "{{codebuild_image}}"
         Type: LINUX_CONTAINER
         EnvironmentVariables:
+          - Name: ACCOUNT
+            Value: "{{aws_account_id}}"
           - Name: BUILD
             Value: !Ref Build
           - Name: API_PORT
@@ -187,6 +188,8 @@ Resources:
         Image: "{{codebuild_image}}"
         Type: LINUX_CONTAINER
         EnvironmentVariables:
+          - Name: ACCOUNT
+            Value: "{{aws_account_id}}"
           - Name: GITHUB_TOKEN
             Value: "{{github_token_ssm_parameter}}"
             Type: PARAMETER_STORE
