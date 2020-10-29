@@ -146,6 +146,7 @@ Resources:
         ComputeType: "{{codebuild_compute_type}}"
         Image: "{{codebuild_image}}"
         Type: LINUX_CONTAINER
+        PrivilegedMode: true
         EnvironmentVariables:
           - Name: ACCOUNT
             Value: "{{aws_account_id}}"
