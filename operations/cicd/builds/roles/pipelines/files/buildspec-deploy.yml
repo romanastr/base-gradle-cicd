@@ -23,13 +23,15 @@ phases:
       - #####   Run load tests  #####
       - ./gradlew gatlingRun-ApiSimulation
       - ./gradlew gatlingRun-StatsApiSimulation
-      - #####   Promote Image   #####
+      - #####   Promote CI images to PROD repositories #####
       - |
-        aws ecr get-login-password | docker login --username AWS --password-stdin $ACCOUNT.dkr.ecr.us-east-1.amazonaws.com
-        for APPLICATION in api stats-api stats-reporting flyway
-        do
-          echo "Promoting application base-gradle-$APPLICATION"
-          docker pull $ACCOUNT.dkr.ecr.us-east-1.amazonaws.com/base-gradle-$APPLICATION:$BUILD_TAG
-          docker tag $ACCOUNT.dkr.ecr.us-east-1.amazonaws.com/base-gradle-$APPLICATION:$BUILD_TAG $ACCOUNT.dkr.ecr.us-east-1.amazonaws.com/prod-base-gradle-$APPLICATION:$BUILD_TAG
-          docker push $ACCOUNT.dkr.ecr.us-east-1.amazonaws.com/prod-base-gradle-$APPLICATION:$BUILD_TAG
-        done
+        if [[ $BUILD = "CI" ]]; then
+          aws ecr get-login-password | docker login --username AWS --password-stdin $ACCOUNT.dkr.ecr.us-east-1.amazonaws.com
+          for APPLICATION in api stats-api stats-reporting flyway
+          do
+            echo "Promoting application base-gradle-$APPLICATION"
+            docker pull $ACCOUNT.dkr.ecr.us-east-1.amazonaws.com/base-gradle-$APPLICATION:$BUILD_TAG
+            docker tag $ACCOUNT.dkr.ecr.us-east-1.amazonaws.com/base-gradle-$APPLICATION:$BUILD_TAG $ACCOUNT.dkr.ecr.us-east-1.amazonaws.com/prod-base-gradle-$APPLICATION:$BUILD_TAG
+            docker push $ACCOUNT.dkr.ecr.us-east-1.amazonaws.com/prod-base-gradle-$APPLICATION:$BUILD_TAG
+          done
+        fi
