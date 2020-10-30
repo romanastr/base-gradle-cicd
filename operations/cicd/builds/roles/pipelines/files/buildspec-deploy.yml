@@ -25,6 +25,7 @@ phases:
       - ./gradlew gatlingRun-StatsApiSimulation
       - #####   Promote Image   #####
       - |
+        aws ecr get-login-password | docker login --username AWS --password-stdin $ACCOUNT.dkr.ecr.us-east-1.amazonaws.com
         for APPLICATION in api stats-api stats-reporting flyway
         do
           echo "Promoting application base-gradle-$APPLICATION"
