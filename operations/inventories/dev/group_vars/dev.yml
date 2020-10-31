@@ -84,7 +84,7 @@ message_bus_password: !vault |
 message_bus_admin_port: 8162
 message_bus_data_port: 61617
 
-eks_cluster_kubernetes_version: 1.17
+eks_cluster_kubernetes_version: 1.18
 
 k8s_cache_cluster_namespace: build-cache
 k8s_cache_cluster_volume_name: build-cache-mount
