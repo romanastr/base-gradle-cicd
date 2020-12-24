@@ -62,7 +62,7 @@ spec:
     spec:
       containers:
         - name: gradle-build-cache
-          image: gradle/build-cache-node:9.3
+          image: gradle/build-cache-node:9.5
           ports:
             - containerPort: 5071
               protocol: TCP
